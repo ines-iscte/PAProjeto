@@ -6,9 +6,10 @@ class Tests {
 
     val peso = Entity(name="peso")
     val modelo = Entity(name="modelo", text="Automático")
-    val plastico = Attribute("Material", "Plástico")
+    val plastico = Attribute("Material", "Plastico")
     val papel = Attribute("Material", "Papel")
     val garrafa =  Entity(name="garrafa", attributes= mutableListOf(plastico))
+    val garrafa2 =  Entity(name="garrafa", attributes= mutableListOf(papel))
     val doc = Document(name="doc")
 
     val doc_plano = Document(name="doc_plano")
@@ -261,10 +262,100 @@ class Tests {
     }
         //assertEquals(expected_output, doc_plano.prettyPrint(doc_plano.entities[0]))
 
+
+    // Ponto 6.
+    @Test
+    fun test_add_global_attribute(){
+        doc.addEntity(garrafa)
+        doc.addEntity(garrafa2)
+
+        //val test_cart = Attribute("Material", "Cartao")
+        doc.add_global_attribute("garrafa", "Material", "Cartao")
+        val expectedAttributes = mutableListOf(Attribute("Material", "Plastico"), Attribute("Material", "Cartao"))
+        assertEquals(expectedAttributes, garrafa.attributes)
+        //assertEquals(mutableListOf(plastico, test_cart), garrafa.attributes)
+        //assertEquals(mutableListOf(cart, papel), garrafa2.attributes)
+
+    }
+
+    // Ponto 7.
+    @Test
+    fun test_rename_global_entity(){
+        doc.addEntity(modelo)
+        doc.rename_global_entity("modelo", "model")
+        assertEquals("model", modelo.name)
+    }
+
+    // Com visitante
+    @Test
+    fun test_rename_global_entity_vis(){
+        doc.addEntity(modelo)
+        doc.rename_global_entity_vis("modelo", "modelos")
+        assertEquals("modelos", modelo.name)
+    }
+
+    // Ponto 8
+    @Test
+    fun test_rename_global_attributes(){
+        doc.addEntity(garrafa)
+        doc.rename_global_attributes("garrafa", "Material", "Materia")
+        assertEquals("Materia", garrafa.attributes.get(0).name)
+    }
+
+    // Com visitante
+    @Test
+    fun test_rename_global_attributes_vis(){
+        doc.addEntity(garrafa)
+        doc.rename_global_attributes_vis("garrafa", "Material", "Materiais")
+        assertEquals("Materiais", garrafa.attributes.get(0).name)
+    }
+
+    // Ponto 9.
+    @Test
+    fun test_remove_global_entities(){
+        val garrafinha = Entity("garrafinha", parent=garrafa)
+        doc.addEntity(garrafa)
+        doc.addEntity(modelo)
+        doc.remove_global_entities("garrafa")
+        assertEquals(listOf(modelo), doc.entities)
+    }
+
+    //Com visitante
+    @Test
+    fun test_remove_global_entities_vis(){
+        val garrafinha = Entity("garrafinha", parent=garrafa)
+        doc.addEntity(garrafa)
+        doc.addEntity(modelo)
+        doc.remove_global_entities_vis("garrafa")
+        assertEquals(listOf(modelo), doc.entities)
+    }
+
+    // Ponto 10.
+    @Test
+    fun test_remove_global_attributes(){
+        val pretos = Attribute("Materiais", "Pretos")
+        garrafa.addAttribute(pretos)
+        doc.addEntity(garrafa)
+        doc.addEntity(modelo)
+        doc.remove_global_attributes("garrafa", "Material")
+        assertEquals(listOf(pretos), garrafa.attributes)
+    }
+
+    //Com visitante
+    @Test
+    fun test_remove_global_attributes_vis(){
+        val pretos = Attribute("Materiais", "Pretos")
+        garrafa.addAttribute(pretos)
+        doc.addEntity(garrafa)
+        doc.addEntity(modelo)
+        doc.remove_global_attributes_vis("garrafa", "Material")
+        assertEquals(listOf(pretos), garrafa.attributes)
+    }
+
     // Testes auxiliares
     @Test
     fun test_get_attributes(){
-        assertEquals(mutableListOf(plastico), garrafa.get_attribute())
+        assertEquals(mutableListOf(plastico), garrafa.get_attributes())
     }
 
     @Test

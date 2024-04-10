@@ -3,10 +3,14 @@ import java.io.File
 class Attribute(
     var name: String,
     var value: String
-)
+){
+    override fun toString(): String {
+        return "Attribute(name='$name', value='$value')"
+    }
+}
 
 class Entity(
-    val name: String,
+    var name: String,
     var text: String = "",
     val attributes: MutableList <Attribute> = mutableListOf(),
     val parent: Entity? = null,
@@ -18,6 +22,11 @@ class Entity(
             parent.children.add(this)
         }
 
+    }
+
+    //Dunno
+    fun accept(visitor: (Entity) -> Boolean){
+        visitor(this)
     }
 
     // Atributos
@@ -47,7 +56,7 @@ class Entity(
         }
     }
 
-    fun get_attribute(): MutableList<Attribute>{
+    fun get_attributes(): MutableList<Attribute>{
         return this.attributes
     }
 
@@ -95,10 +104,126 @@ class Entity(
     }
 }
 
+//fun Document.add_global_attribute_vis(entity_name: String, attribute_name: String, attribute_value: String){
+//    var att: Attribute? = null
+//    this.entities.forEach(){
+//        var att_list = it.get_attributes()
+//        att_list.forEach(){
+//            if (it.name==entity_name && it.value==attribute_value) {
+//                att = it
+//                return@forEach
+//            }
+//        }
+//    }
+//    if (att == null)
+//        att = Attribute(name=attribute_name, value=attribute_value)
+//
+//    val attCopy = att
+//
+//    // Para preservar a variável att, que pode ser modificada dentro da expressão do visitor
+//    this.accept {
+//            if (entity_name == it.name && attCopy != null)
+//                it.addAttribute(attCopy!!)
+//            true
+//    }
+//}
+
+fun Document.add_global_attribute_vis(entity_name: String, attribute_name: String, attribute_value: String) {
+    var att: Attribute? = null
+
+    // Procura por um Attribute com o mesmo nome e valor em cada entidade
+    this.entities.forEach { entity ->
+        val att_list = entity.get_attributes()
+        val matchingAttribute = att_list.find { it.name == attribute_name && it.value == attribute_value }
+        if (matchingAttribute != null) {
+            att = matchingAttribute
+            return@forEach
+        }
+    }
+
+    // Se não foi encontrado um Attribute, cria um novo
+    if (att == null) {
+        att = Attribute(name = attribute_name, value = attribute_value)
+    }
+
+    // Adiciona o Attribute à lista de atributos de cada entidade
+    this.accept {
+        if (entity_name == it.name && att != null) {
+            it.addAttribute(att!!) // Copia o Attribute para garantir instâncias separadas
+        }
+        true
+    }
+}
+
+// Ponto 7
+fun Document.rename_global_entity_vis(old_name: String, new_name:String){
+    this.accept {
+        if (old_name == it.name) {
+            it.name=new_name
+        }
+        true
+    }
+}
+
+// Ponto 8
+fun Document.rename_global_attributes_vis(entity_name: String, old_attribute_name: String, new_attribute_name: String){
+    this.accept {
+        if (entity_name == it.name) {
+            it.attributes.forEach(){
+                if (it.name==old_attribute_name)
+                    it.name=new_attribute_name
+            }
+        }
+        true
+    }
+}
+
+// Ponto 9
+fun Document.remove_global_entities_vis(entity_name: String) {
+    this.accept { entity ->
+        if (entity.name == entity_name) {
+            entities.remove(entity)
+        }
+        true
+    }
+}
+
+// Ponto 10
+//fun Document.remove_global_attributes_vis(entity_name: String, attribute_name: String){
+//    this.accept { entity ->
+//        if (entity_name == entity.name) {
+//            entity.attributes.forEach(){
+//                if (it.name==attribute_name)
+//                    entity.attributes.remove(it)
+//            }
+//        }
+//        true
+//    }
+//}
+
+fun Document.remove_global_attributes_vis(entity_name: String, attribute_name: String) {
+    this.accept { entity ->
+        if (entity_name == entity.name) {
+            val attributesToRemove = entity.attributes.filter { it.name == attribute_name }
+            attributesToRemove.forEach { attribute ->
+                entity.attributes.remove(attribute)
+            }
+        }
+        true
+    }
+}
+
 class Document(
-    val name: String,
+    var name: String,
     val entities: MutableList <Entity> = mutableListOf()
 ) {
+
+    // Dunno x2
+    fun accept(visitor: (Entity) -> Boolean) {
+        entities.forEach {
+                it.accept(visitor)
+            }
+    }
 
     fun addEntity(entity: Entity) {
         entities.add(entity)
@@ -122,8 +247,6 @@ class Document(
             }
         }
 
-        //stringBuilder.append(">")
-        // Tirar esta identação se for para ter tag no fim
         if (entity.children.isEmpty() && entity.text.isEmpty()) {
             stringBuilder.append("/>")
         } else {
@@ -141,8 +264,6 @@ class Document(
                 stringBuilder.append("$indent")
             }
 
-            // WTF porque é que "componente" não tem tag de fecho
-            // Que estupidez i swear
             if (entity.children.isNotEmpty() || entity.text.isNotEmpty()) {
                 stringBuilder.append("</${entity.name}>")
             }
@@ -154,6 +275,88 @@ class Document(
         val xmlString = prettyPrint(entity, indent)
         outputFile.writeText(xmlString)
     }
+
+    // Ponto 6.
+    fun add_global_attribute(entity_name: String, attribute_name: String, attribute_value: String){
+        var att: Attribute? = null
+        this.entities.forEach(){
+            var att_list = it.get_attributes()
+            att_list.forEach(){
+                if (it.name==entity_name && it.value==attribute_value) {
+                    att = it
+                    return@forEach
+                }
+            }
+        }
+        if (att == null)
+            att = Attribute(name=attribute_name, value=attribute_value)
+
+        val attCopy = att
+
+        entities.forEach () {
+            if (entity_name == it.name) {
+                if (attCopy != null) {
+                    it.addAttribute(attCopy)
+                }
+            }
+        }
+    }
+
+    // Ponto 7
+    fun rename_global_entity(old_name: String, new_name:String){
+        this.entities.forEach(){
+            if (old_name == it.name) {
+                it.name=new_name
+            }
+        }
+    }
+
+    // Ponto 8
+    fun rename_global_attributes(entity_name: String, old_attribute_name: String, new_attribute_name: String){
+        entities.forEach(){
+            if (entity_name == it.name) {
+                it.attributes.forEach(){
+                    if (it.name==old_attribute_name)
+                        it.name=new_attribute_name
+                }
+            }
+        }
+    }
+
+    // Ponto 9
+    fun remove_global_entities(entity_name: String){
+        val list: MutableList <Entity> = mutableListOf()
+        entities.forEach(){
+            if (entity_name == it.name) {
+                list.add(it)
+            }
+        }
+        entities.removeAll(list)
+    }
+
+    // Ponto 10
+//    fun remove_global_attributes(entity_name: String, attribute_name: String) {
+//        val list: MutableList <Entity> = mutableListOf()
+//        entities.forEach(){
+//            if (entity_name == it.name) {
+//                it.attributes.forEach(){
+//                    if (it.name == attribute_name)
+//                        list.add(it)
+//                }
+//                it.attributes.removeAll(list)
+//            }
+//        }
+//    }
+
+    fun remove_global_attributes(entity_name: String, attribute_name: String) {
+        entities.forEach { entity ->
+            if (entity_name == entity.name) {
+                val attributesToRemove = entity.attributes.filter { it.name == attribute_name }
+                entity.attributes.removeAll(attributesToRemove)
+            }
+        }
+    }
+
 
 }
 
