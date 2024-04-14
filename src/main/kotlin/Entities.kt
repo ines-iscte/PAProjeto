@@ -7,6 +7,15 @@ class Attribute(
     override fun toString(): String {
         return "Attribute(name='$name', value='$value')"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Attribute) return false
+
+        if (name != other.name || value != other.value) return false
+
+        return true
+    }
 }
 
 class Entity(
@@ -79,15 +88,21 @@ class Entity(
         return this.parent
     }
 
-    fun get_Children() : List<Entity> {
+    // Ao contar com os filhos das entidades filhas
+    fun get_all_Children() : List<Entity> {
         val list: MutableList<Entity> = mutableListOf()
         this.children.forEach {
             //if (it is Entity) {
             list.add(it)
-            list.addAll(it.get_Children())
+            list.addAll(it.get_all_Children())
             //}
         }
         return list
+    }
+
+    // Sem contar com os filhos das entidades filhas
+    fun get_Children() : List<Entity> {
+        return this.children
     }
 
     fun get_Parent_and_Children(): List<Entity>{
@@ -127,91 +142,6 @@ class Entity(
 //            true
 //    }
 //}
-
-fun Document.add_global_attribute_vis(entity_name: String, attribute_name: String, attribute_value: String) {
-    var att: Attribute? = null
-
-    // Procura por um Attribute com o mesmo nome e valor em cada entidade
-    this.entities.forEach { entity ->
-        val att_list = entity.get_attributes()
-        val matchingAttribute = att_list.find { it.name == attribute_name && it.value == attribute_value }
-        if (matchingAttribute != null) {
-            att = matchingAttribute
-            return@forEach
-        }
-    }
-
-    // Se não foi encontrado um Attribute, cria um novo
-    if (att == null) {
-        att = Attribute(name = attribute_name, value = attribute_value)
-    }
-
-    // Adiciona o Attribute à lista de atributos de cada entidade
-    this.accept {
-        if (entity_name == it.name && att != null) {
-            it.addAttribute(att!!) // Copia o Attribute para garantir instâncias separadas
-        }
-        true
-    }
-}
-
-// Ponto 7
-fun Document.rename_global_entity_vis(old_name: String, new_name:String){
-    this.accept {
-        if (old_name == it.name) {
-            it.name=new_name
-        }
-        true
-    }
-}
-
-// Ponto 8
-fun Document.rename_global_attributes_vis(entity_name: String, old_attribute_name: String, new_attribute_name: String){
-    this.accept {
-        if (entity_name == it.name) {
-            it.attributes.forEach(){
-                if (it.name==old_attribute_name)
-                    it.name=new_attribute_name
-            }
-        }
-        true
-    }
-}
-
-// Ponto 9
-fun Document.remove_global_entities_vis(entity_name: String) {
-    this.accept { entity ->
-        if (entity.name == entity_name) {
-            entities.remove(entity)
-        }
-        true
-    }
-}
-
-// Ponto 10
-//fun Document.remove_global_attributes_vis(entity_name: String, attribute_name: String){
-//    this.accept { entity ->
-//        if (entity_name == entity.name) {
-//            entity.attributes.forEach(){
-//                if (it.name==attribute_name)
-//                    entity.attributes.remove(it)
-//            }
-//        }
-//        true
-//    }
-//}
-
-fun Document.remove_global_attributes_vis(entity_name: String, attribute_name: String) {
-    this.accept { entity ->
-        if (entity_name == entity.name) {
-            val attributesToRemove = entity.attributes.filter { it.name == attribute_name }
-            attributesToRemove.forEach { attribute ->
-                entity.attributes.remove(attribute)
-            }
-        }
-        true
-    }
-}
 
 class Document(
     var name: String,
@@ -276,30 +206,16 @@ class Document(
         outputFile.writeText(xmlString)
     }
 
-    // Ponto 6.
-    fun add_global_attribute(entity_name: String, attribute_name: String, attribute_value: String){
-        var att: Attribute? = null
-        this.entities.forEach(){
-            var att_list = it.get_attributes()
-            att_list.forEach(){
-                if (it.name==entity_name && it.value==attribute_value) {
-                    att = it
-                    return@forEach
-                }
-            }
-        }
-        if (att == null)
-            att = Attribute(name=attribute_name, value=attribute_value)
+    // Ponto 6
+    fun add_global_attribute(entity_name: String, attribute_name: String, attribute_value: String) {
+        // Procura ou cria o atributo
+        val attribute = Attribute(attribute_name, attribute_value)
 
-        val attCopy = att
-
-        entities.forEach () {
-            if (entity_name == it.name) {
-                if (attCopy != null) {
-                    it.addAttribute(attCopy)
-                }
+        // Adiciona o atributo a todas as entidades com o nome especificado
+        this.entities.filter { it.name == entity_name }
+            .forEach {
+                it.addAttribute(attribute)
             }
-        }
     }
 
     // Ponto 7
@@ -360,39 +276,119 @@ class Document(
 
 }
 
-//    fun prettyPrintDocument(): String {
+// Funções usando objetos Visitor (Ponto 5)
 
-//        var file: String
-//
-//        file = """<?xml version="1.0" encoding="UTF-8"?>"""
-//        entities.forEach {
-//            //if (it.children.isEmpty()) {
-//            file.plus("<" + it.name + ">")
-//            if (it.text != "")
-//                file.plus(it.text)
-//            if (!it.attributes.isEmpty())
-//                it.attributes.forEach {
-//                    file.plus(it.name + "=" + it.value)
-//                }
-//
-//            file.plus("</" + it.name + ">")
-//            //}
-//            file.plus("<" + it.name + ">")
-//
+// Relativas a Entidades, usando Documento
+
+// As funções têm de estar relacionada com um Documento, de modo a serem percorridas as entidades disponíveis no mesmo,
+// ao ser usado o método de Visitante.
+
+fun Document.get_Parent_vis(child_entity: Entity): Entity?{
+    var result: Entity? = null
+    this.accept { entity ->
+        if (entity == child_entity.get_Parent()) {
+            result = entity
+        }
+        true
+    }
+    return result
+}
+
+fun Document.get_Children_vis(parent_entity: Entity) : List<Entity> {
+    val list = mutableListOf<Entity>()
+
+    this.accept { entity ->
+        if (entity.parent == parent_entity){
+            list.add(entity)
+        }
+
+        true
+    }
+    return list
+}
+
+fun Document.get_Parent_and_Children_vis(main_entity: Entity): List<Entity>{
+
+    val list = mutableListOf<Entity>()
+
+    this.accept { entity ->
+        if (entity in main_entity.get_Children() || entity == main_entity.get_Parent()) {
+            list.add(entity)
+        }
+        true
+    }
+    return list
+}
+
+// Relativas a Documentos
+
+fun Document.add_global_attribute_vis(entity_name: String, attribute_name: String, attribute_value: String) {
+
+    val attribute = Attribute(attribute_name, attribute_value)
+
+    this.accept {
+        if (entity_name == it.name) {
+            it.addAttribute(attribute)
+        }
+        true
+    }
+}
+
+// Ponto 7
+fun Document.rename_global_entity_vis(old_name: String, new_name:String){
+    this.accept {
+        if (old_name == it.name) {
+            it.name=new_name
+        }
+        true
+    }
+}
+
+// Ponto 8
+fun Document.rename_global_attributes_vis(entity_name: String, old_attribute_name: String, new_attribute_name: String){
+    this.accept {
+        if (entity_name == it.name) {
+            it.attributes.forEach(){
+                if (it.name==old_attribute_name)
+                    it.name=new_attribute_name
+            }
+        }
+        true
+    }
+}
+
+// Ponto 9
+fun Document.remove_global_entities_vis(entity_name: String) {
+    this.accept { entity ->
+        if (entity.name == entity_name) {
+            entities.remove(entity)
+        }
+        true
+    }
+}
+
+// Ponto 10
+//fun Document.remove_global_attributes_vis(entity_name: String, attribute_name: String){
+//    this.accept { entity ->
+//        if (entity_name == entity.name) {
+//            entity.attributes.forEach(){
+//                if (it.name==attribute_name)
+//                    entity.attributes.remove(it)
+//            }
 //        }
-//    return file
+//        true
 //    }
-//
-//
 //}
 
-
-//data class InnerEntity(
-//    override val name: String,
-//    override val text: String = "",
-//    override val attributes: MutableList <Attribute> = mutableListOf(),
-//    val parentEntity: Entity
-//): Entity(name, text, attributes)
-
-
+fun Document.remove_global_attributes_vis(entity_name: String, attribute_name: String) {
+    this.accept { entity ->
+        if (entity_name == entity.name) {
+            val attributesToRemove = entity.attributes.filter { it.name == attribute_name }
+            attributesToRemove.forEach { attribute ->
+                entity.attributes.remove(attribute)
+            }
+        }
+        true
+    }
+}
 

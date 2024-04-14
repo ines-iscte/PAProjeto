@@ -101,14 +101,23 @@ class Tests {
 
     // Ponto 3.
     @Test
-    fun test_children_list_of_entity(){
+    fun test_all_children_list_of_entity(){
         val objeto = Entity(name="objeto")
         val copo =  Entity(name="copo", text="De vinho", attributes= mutableListOf(plastico, papel), parent=objeto)
         val copito = Entity(name="copito", text="De vinho branco", parent=copo)
+        assertEquals(listOf(copo, copito), objeto.get_all_Children())
+    }
+
+    // Ponto 3.
+    @Test
+    fun test_children_list_of_entity(){
+        val objeto = Entity(name="objeto")
+        val copo =  Entity(name="copo", text="De vinho", attributes= mutableListOf(plastico, papel), parent=objeto)
+        val copito = Entity(name="copito", text="De vinho branco", parent=objeto)
         assertEquals(listOf(copo, copito), objeto.get_Children())
     }
 
-    // Ponto 3
+    // Ponto 3.
     @Test
     fun test_parent_of_entity(){
         val objeto = Entity(name="objeto")
@@ -124,6 +133,45 @@ class Tests {
         val copo =  Entity(name="copo", text="De vinho", attributes= mutableListOf(plastico, papel), parent=objeto)
         val copito = Entity(name="copito", text="De vinho branco", parent=copo)
         assertEquals(listOf(objeto, copito), copo.get_Parent_and_Children())
+    }
+
+    // Ponto 5.
+    @Test
+    fun test_children_list_of_entity_vis(){
+        val objeto = Entity(name="objeto")
+        val copo =  Entity(name="copo", text="De vinho", attributes= mutableListOf(plastico, papel), parent=objeto)
+        val copito = Entity(name="copito", text="De vinho branco", parent=objeto)
+        val doc11 = Document(name="doc11")
+        doc11.addEntity(objeto)
+        doc11.addEntity(copo)
+        doc11.addEntity(copito)
+        assertEquals(listOf(copo, copito), doc11.get_Children_vis(objeto))
+    }
+
+    // Ponto 5.
+    @Test
+    fun test_parent_of_entity_vis(){
+        val objeto = Entity(name="objeto")
+        val copo =  Entity(name="copo", text="De vinho", attributes= mutableListOf(plastico, papel), parent=objeto)
+        val copito = Entity(name="copito", text="De vinho branco", parent=copo)
+        val doc11 = Document(name="doc11")
+        doc11.addEntity(objeto)
+        doc11.addEntity(copo)
+        doc11.addEntity(copito)
+        assertEquals(copo, doc11.get_Parent_vis(copito))
+    }
+
+    // Ponto 5.
+    @Test
+    fun test_parent_and_children_vis(){
+        val objeto = Entity(name="objeto")
+        val copo =  Entity(name="copo", text="De vinho", attributes= mutableListOf(plastico, papel), parent=objeto)
+        val copito = Entity(name="copito", text="De vinho branco", parent=copo)
+        val doc11 = Document(name="doc11")
+        doc11.addEntity(objeto)
+        doc11.addEntity(copo)
+        doc11.addEntity(copito)
+        assertEquals(listOf(objeto, copito), doc11.get_Parent_and_Children_vis(copo))
     }
 
     // Testes a Documentos
@@ -262,20 +310,26 @@ class Tests {
     }
         //assertEquals(expected_output, doc_plano.prettyPrint(doc_plano.entities[0]))
 
-
     // Ponto 6.
     @Test
     fun test_add_global_attribute(){
         doc.addEntity(garrafa)
         doc.addEntity(garrafa2)
 
-        //val test_cart = Attribute("Material", "Cartao")
         doc.add_global_attribute("garrafa", "Material", "Cartao")
         val expectedAttributes = mutableListOf(Attribute("Material", "Plastico"), Attribute("Material", "Cartao"))
         assertEquals(expectedAttributes, garrafa.attributes)
-        //assertEquals(mutableListOf(plastico, test_cart), garrafa.attributes)
-        //assertEquals(mutableListOf(cart, papel), garrafa2.attributes)
+    }
 
+    // Ponto 6.
+    @Test
+    fun test_add_global_attribute_vis(){
+        doc.addEntity(garrafa)
+        doc.addEntity(garrafa2)
+
+        doc.add_global_attribute_vis("garrafa", "Material", "Cartao")
+        val expectedAttributes = mutableListOf(Attribute("Material", "Plastico"), Attribute("Material", "Cartao"))
+        assertEquals(expectedAttributes, garrafa.attributes)
     }
 
     // Ponto 7.
