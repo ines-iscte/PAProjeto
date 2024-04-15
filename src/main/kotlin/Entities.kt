@@ -33,6 +33,10 @@ class Entity(
 
     }
 
+    override fun toString(): String {
+        return "Entity(name='$name')"
+    }
+
     //Dunno
     fun accept(visitor: (Entity) -> Boolean){
         visitor(this)
@@ -168,37 +172,38 @@ class Document(
     }
 
     fun prettyPrint(entity: Entity, indent: String = ""): String {
-        val stringBuilder = StringBuilder()
+//        val stringBuilder = StringBuilder()
+//
+//        stringBuilder.append("$indent<${entity.name}")
+//        if (entity.attributes.isNotEmpty()) {
+//            entity.attributes.forEach { attribute ->
+//                stringBuilder.append(" ${attribute.name}=\"${attribute.value}\"")
+//            }
+//        }
+//
+//        if (entity.children.isEmpty() && entity.text.isEmpty()) {
+//            stringBuilder.append("/>")
+//        } else {
+//            stringBuilder.append(">")
+//
+//            if (entity.text.isNotEmpty())
+//                stringBuilder.append("${entity.text}")
+//
+//            if (entity.children.isNotEmpty()) {
+//                stringBuilder.appendLine()
+//                entity.children.forEach { child ->
+//                    stringBuilder.append(prettyPrint(child, "$indent    "))
+//                    stringBuilder.appendLine()
+//                }
+//                stringBuilder.append("$indent")
+//            }
+//
+//            if (entity.children.isNotEmpty() || entity.text.isNotEmpty()) {
+//                stringBuilder.append("</${entity.name}>")
+//            }
+//        }
 
-        stringBuilder.append("$indent<${entity.name}")
-        if (entity.attributes.isNotEmpty()) {
-            entity.attributes.forEach { attribute ->
-                stringBuilder.append(" ${attribute.name}=\"${attribute.value}\"")
-            }
-        }
-
-        if (entity.children.isEmpty() && entity.text.isEmpty()) {
-            stringBuilder.append("/>")
-        } else {
-            stringBuilder.append(">")
-
-            if (entity.text.isNotEmpty())
-                stringBuilder.append("${entity.text}")
-
-            if (entity.children.isNotEmpty()) {
-                stringBuilder.appendLine()
-                entity.children.forEach { child ->
-                    stringBuilder.append(prettyPrint(child, "$indent    "))
-                    stringBuilder.appendLine()
-                }
-                stringBuilder.append("$indent")
-            }
-
-            if (entity.children.isNotEmpty() || entity.text.isNotEmpty()) {
-                stringBuilder.append("</${entity.name}>")
-            }
-        }
-        return stringBuilder.toString()
+        return get_entity_xml(entity = entity, indent = indent, pretty_print = true)
     }
 
     fun prettyPrintToFile(entity: Entity, indent: String = "", outputFile: File) {
@@ -273,7 +278,140 @@ class Document(
         }
     }
 
+    fun get_entity_xml(entity: Entity, pretty_print: Boolean = false, indent: String = ""): String{
+        val stringBuilder = StringBuilder()
 
+        stringBuilder.append("$indent<${entity.name}")
+        if (entity.attributes.isNotEmpty()) {
+            entity.attributes.forEach { attribute ->
+                stringBuilder.append(" ${attribute.name}=\"${attribute.value}\"")
+            }
+        }
+
+        if (entity.children.isEmpty() && entity.text.isEmpty()) {
+            stringBuilder.append("/>")
+        } else {
+            stringBuilder.append(">")
+
+            if (entity.text.isNotEmpty())
+                stringBuilder.append("${entity.text}")
+
+            // No caso de ir buscar os filhos da entidade (no caso da função ser usada para pretty_print)
+            if (pretty_print){
+                if (entity.children.isNotEmpty()) {
+                    stringBuilder.appendLine()
+                    entity.children.forEach { child ->
+                        stringBuilder.append(prettyPrint(child, "$indent    "))
+                        stringBuilder.appendLine()
+                    }
+                    stringBuilder.append("$indent")
+                }
+            }
+            if (entity.children.isNotEmpty() || entity.text.isNotEmpty()) {
+                stringBuilder.append("</${entity.name}>")
+            }
+        }
+        return stringBuilder.toString()
+    }
+
+
+//    fun aux_get_entity_with_x_path(x_path: String, entities_list: List<Entity>): Entity? {
+//        val first_entity = x_path.substringBefore("/")
+//        val other_entities = x_path.substringAfter("/")
+//
+//        entities_list.forEach {
+//            if (first_entity == it.name) {
+//                if (other_entities.isEmpty()) {
+//                    return it
+//                } else {
+//                    return aux_get_entity_with_x_path(other_entities, it.get_Children())
+//                }
+//            }
+//        }
+//
+//        return null
+
+//    fun aux_get_entity_with_x_path(x_path: String, entity_to_explore: Entity): MutableList<Entity> {
+//
+//        val foundEntities = mutableListOf<Entity>()
+//
+//        val parts = x_path.split("/")
+//        val first_entity = parts.first()
+//        val other_entities = parts.drop(1).joinToString("/")
+//
+////        if (first_entity == entity_to_explore?.name && other_entities == ""){
+////            println("Acabei " + entity_to_explore)
+////            foundEntities.add(entity_to_explore)
+////        }
+//
+//
+//        var entities_list = entity_to_explore.get_Children()
+//        println("List" + entities_list)
+//        val foundEntity = entities_list.find { it.name == first_entity }
+//
+//        println("foundEntity" + foundEntity)
+//        println("Other entities " + other_entities)
+//
+////        if (first_entity == foundEntity?.name && other_entities == ""){
+////            println("Acabei " + foundEntity)
+////            foundEntities.add(foundEntity)
+////        }
+////
+////        if (foundEntity != null && other_entities.isNotEmpty()) {
+////            println("Vai abaixo")
+////            return aux_get_entity_with_x_path(other_entities, foundEntity)
+////        }
+//
+//        if (foundEntity != null) {
+//            if (other_entities.isEmpty()) {
+//                foundEntities.add(foundEntity)
+//            } else {
+//                val childEntities = aux_get_entity_with_x_path(other_entities, foundEntity)
+//                foundEntities.addAll(childEntities)
+//            }
+//        }
+//
+//        return foundEntities
+//    }
+
+fun aux_get_entity_with_x_path(x_path: String, entities_to_explore: List<Entity>): List<Entity> {
+    val foundEntities = mutableListOf<Entity>()
+
+    val parts = x_path.split("/")
+    val first_entity = parts.first()
+    val other_entities = parts.drop(1).joinToString("/")
+
+    val matchingEntities = entities_to_explore.filter { it.name == first_entity }
+
+    println("Matching entities " + matchingEntities)
+
+    matchingEntities.forEach { entity ->
+        if (other_entities.isEmpty()) {
+            println("Adicionei " + entity)
+            foundEntities.add(entity)
+        } else {
+            val childEntities = aux_get_entity_with_x_path(other_entities, entity.get_Children())
+            println("Adicionei crianças " + childEntities)
+            foundEntities.addAll(childEntities)
+        }
+    }
+
+    return foundEntities
+}
+
+    fun get_entity_with_x_path(x_path: String): String {
+        val stringBuilder = StringBuilder()
+        val returned_entities = aux_get_entity_with_x_path(x_path, entities)
+        println(returned_entities)
+        if (returned_entities != null) {
+            returned_entities.forEachIndexed { index, entity ->
+                stringBuilder.append(get_entity_xml(entity))
+                if (index != returned_entities.size - 1)
+                    stringBuilder.append("\n")
+            }
+        }
+        return stringBuilder.toString()
+    }
 }
 
 // Funções usando objetos Visitor (Ponto 5)

@@ -308,7 +308,6 @@ class Tests {
         // Limpeza: Exclua o arquivo após o teste
         testFile.delete()
     }
-        //assertEquals(expected_output, doc_plano.prettyPrint(doc_plano.entities[0]))
 
     // Ponto 6.
     @Test
@@ -429,6 +428,43 @@ class Tests {
         assertEquals("", modelo.get_entity_text())
     }
 
+    @Test
+    fun test_get_entity_xml(){
+        val expected1 = "<componente nome=\"Quizzes\" peso=\"20%\"/>"
+        val expected2 = "<curso>Mestrado em Engenharia Informática</curso>"
+        assertEquals(expected1, doc_plano.get_entity_xml(componente1))
+        assertEquals(expected2, doc_plano.get_entity_xml(curso1))
+    }
 
+    @Test
+    fun test_get_entity_with_x_path(){
+        val expected1=   """
+            <componente nome="Quizzes" peso="20%"/>
+            <componente nome="Projeto" peso="80%"/>
+            <componente nome="Dissertação" peso="60%"/>
+            <componente nome="Apresentação" peso="20%"/>
+            <componente nome="Discussão" peso="20%"/>""".trimIndent()
+
+        val expected2 = "<curso>Mestrado em Engenharia Informática</curso>"
+
+        doc_plano.addEntity(plano)
+        doc_plano.addEntity(curso1)
+        doc_plano.addEntity(fuc1)
+        doc_plano.addEntity(nome1)
+        doc_plano.addEntity(ects1)
+        doc_plano.addEntity(avaliacao1)
+        doc_plano.addEntity(componente1)
+        doc_plano.addEntity(componente2)
+        doc_plano.addEntity(fuc2)
+        doc_plano.addEntity(nome2)
+        doc_plano.addEntity(ects2)
+        doc_plano.addEntity(avaliacao2)
+        doc_plano.addEntity(componente3)
+        doc_plano.addEntity(componente4)
+        doc_plano.addEntity(componente5)
+
+        assertEquals(expected1, doc_plano.get_entity_with_x_path("fuc/avaliacao/componente"))
+        assertEquals(expected2, doc_plano.get_entity_with_x_path("curso"))
+    }
 
 }
