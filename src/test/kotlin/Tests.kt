@@ -4,17 +4,26 @@ import kotlin.test.assertEquals
 
 class Tests {
 
-    val peso = Entity(name="peso")
+    // Test Document
+    val doc = Document(name="doc")
+
+    // Entity without children or attributes
     val modelo = Entity(name="modelo", text="Automático")
+
+    // Entities with attributes
     val plastico = Attribute("Material", "Plastico")
     val papel = Attribute("Material", "Papel")
     val garrafa =  Entity(name="garrafa", attributes= mutableListOf(plastico))
     val garrafa2 =  Entity(name="garrafa", attributes= mutableListOf(papel))
-    val doc = Document(name="doc")
 
+    // Entities with children
+    val objeto = Entity(name="objeto")
+    val copo =  Entity(name="copo", text="De vinho", attributes= mutableListOf(plastico, papel), parent=objeto)
+    val copito = Entity(name="copito", text="De vinho branco", parent=copo)
+
+    // Document relating to the example given
     val doc_plano = Document(name="doc_plano")
 
-    // A usar no teste de Pretty Print (Ponto 4.)
     val plano = Entity(name="plano")
     val curso1 = Entity(name="curso", text="Mestrado em Engenharia Informática", parent = plano)
     val codigo1 = Attribute(name="codigo", value="M4310")
@@ -44,185 +53,157 @@ class Tests {
     val componente_nome10 = Attribute(name="peso", value="20%")
     val componente5 = Entity(name="componente", attributes= mutableListOf(componente_nome9, componente_nome10), parent=avaliacao2)
 
-    // Testes a Atributos
+
+    // Attribute tests
     @Test
     fun test_create_attribute(){
         assertEquals("Material", plastico.name)
         assertEquals("Papel", papel.value)
     }
 
-    // Ponto 2.
+    // Point 2.
     @Test
     fun test_add_attribute_to_entity(){
-        val altura = Attribute("Altura", "1.60 metros")
-        modelo.addAttribute(altura)
-        val largura = Attribute("Largura", "1.20 metros")
-        modelo.addAttribute(largura)
-        assertEquals(listOf(altura, largura), modelo.attributes)
+        val reciclado = Attribute("Reciclado", "1.40€")
+        modelo.add_attribute_to_entity(reciclado)
+        val nao_reciclado = Attribute("Não Reciclado", "1.20€")
+        modelo.add_attribute_to_entity(nao_reciclado)
+        assertEquals(listOf(reciclado, nao_reciclado), modelo.attributes)
     }
 
-    // Ponto 2.
+    // Point 2.
     @Test
     fun test_remove_attribute_to_entity(){
-        val altura = Attribute("Altura", "1.60 metros")
-        modelo.addAttribute(altura)
-        val largura = Attribute("Largura", "1.20 metros")
-        modelo.addAttribute(largura)
-        modelo.removeAttribute(altura)
-        assertEquals(listOf(largura), modelo.attributes)
+        val reciclado = Attribute("Reciclado", "1.40€")
+        modelo.add_attribute_to_entity(reciclado)
+        val nao_reciclado = Attribute("Não Reciclado", "1.20€")
+        modelo.add_attribute_to_entity(nao_reciclado)
+        modelo.remove_attribute_to_entity(reciclado)
+        assertEquals(listOf(nao_reciclado), modelo.attributes)
     }
 
-    // Ponto 2.
+    // Point 2.
     @Test
     fun test_change_attribute_to_entity(){
-        val altura = Attribute("Altura", "1.60 metros")
-        modelo.addAttribute(altura)
-        val largura = Attribute("Largura", "1.20 metros")
-        modelo.addAttribute(largura)
-        modelo.changeAttribute(attribute=altura,new_value="1.50 metros")
-        modelo.changeAttribute(attribute=largura, new_name="Comprimento", new_value="1.90 metros")
+        val reciclado = Attribute("Reciclado", "1.40€")
+        modelo.add_attribute_to_entity(reciclado)
+        val nao_reciclado = Attribute("Não Reciclado", "1.20€")
+        modelo.add_attribute_to_entity(nao_reciclado)
+        modelo.change_attribute_to_entity(attribute=reciclado, new_value="1.50€")
+        modelo.change_attribute_to_entity(attribute=nao_reciclado, new_name="50% reciclado", new_value="1.30€")
 
         val expectedAttributes = listOf(
-            Attribute("Altura", "1.50 metros"),
-            Attribute("Comprimento", "1.90 metros")
+            Attribute("Reciclado", "1.50€"),
+            Attribute("50% reciclado", "1.30€")
         )
 
         assertEquals(expectedAttributes, modelo.attributes)
     }
 
-    // Testes a Entidades
+
+    // Entity Tests
     @Test
     fun test_create_entity() {
         assertEquals("modelo", modelo.name)
-        assertEquals("peso", peso.name)
         assertEquals("Automático", modelo.text)
         assertEquals(mutableListOf(plastico), garrafa.attributes)
     }
 
-    // Ponto 3.
+    // Point 3.
     @Test
     fun test_all_children_list_of_entity(){
-        val objeto = Entity(name="objeto")
-        val copo =  Entity(name="copo", text="De vinho", attributes= mutableListOf(plastico, papel), parent=objeto)
-        val copito = Entity(name="copito", text="De vinho branco", parent=copo)
-        assertEquals(listOf(copo, copito), objeto.get_all_Children())
+        assertEquals(listOf(copo, copito), objeto.get_all_children())
     }
 
-    // Ponto 3.
+    // Point 3.
     @Test
     fun test_children_list_of_entity(){
-        val objeto = Entity(name="objeto")
-        val copo =  Entity(name="copo", text="De vinho", attributes= mutableListOf(plastico, papel), parent=objeto)
-        val copito = Entity(name="copito", text="De vinho branco", parent=objeto)
-        assertEquals(listOf(copo, copito), objeto.get_Children())
+        assertEquals(listOf(copo), objeto.get_children())
     }
 
-    // Ponto 3.
+    // Point 3.
     @Test
     fun test_parent_of_entity(){
-        val objeto = Entity(name="objeto")
-        val copo =  Entity(name="copo", text="De vinho", attributes= mutableListOf(plastico, papel), parent=objeto)
-        val copito = Entity(name="copito", text="De vinho branco", parent=copo)
-        assertEquals(copo, copito.get_Parent())
+        assertEquals(copo, copito.get_parent())
     }
 
-    // Ponto 3.
+    // Point 3.
     @Test
     fun test_parent_and_children(){
-        val objeto = Entity(name="objeto")
-        val copo =  Entity(name="copo", text="De vinho", attributes= mutableListOf(plastico, papel), parent=objeto)
-        val copito = Entity(name="copito", text="De vinho branco", parent=copo)
-        assertEquals(listOf(objeto, copito), copo.get_Parent_and_Children())
+        assertEquals(listOf(objeto, copito), copo.get_parent_and_children())
     }
 
-    // Ponto 5.
+    // Points 3 and 5.
     @Test
     fun test_children_list_of_entity_vis(){
-        val objeto = Entity(name="objeto")
-        val copo =  Entity(name="copo", text="De vinho", attributes= mutableListOf(plastico, papel), parent=objeto)
-        val copito = Entity(name="copito", text="De vinho branco", parent=objeto)
-        val doc11 = Document(name="doc11")
-        doc11.addEntity(objeto)
-        doc11.addEntity(copo)
-        doc11.addEntity(copito)
-        assertEquals(listOf(copo, copito), doc11.get_Children_vis(objeto))
+        doc.add_entity_to_document(objeto)
+        doc.add_entity_to_document(copo)
+        doc.add_entity_to_document(copito)
+        assertEquals(listOf(copo), doc.get_children_vis(objeto))
     }
 
-    // Ponto 5.
+    // Points 3 and 5.
     @Test
     fun test_parent_of_entity_vis(){
-        val objeto = Entity(name="objeto")
-        val copo =  Entity(name="copo", text="De vinho", attributes= mutableListOf(plastico, papel), parent=objeto)
-        val copito = Entity(name="copito", text="De vinho branco", parent=copo)
-        val doc11 = Document(name="doc11")
-        doc11.addEntity(objeto)
-        doc11.addEntity(copo)
-        doc11.addEntity(copito)
-        assertEquals(copo, doc11.get_Parent_vis(copito))
+        doc.add_entity_to_document(objeto)
+        doc.add_entity_to_document(copo)
+        doc.add_entity_to_document(copito)
+        assertEquals(copo, doc.get_parent_vis(copito))
     }
 
-    // Ponto 5.
+    // Points 3 and 5.
     @Test
     fun test_parent_and_children_vis(){
-        val objeto = Entity(name="objeto")
-        val copo =  Entity(name="copo", text="De vinho", attributes= mutableListOf(plastico, papel), parent=objeto)
-        val copito = Entity(name="copito", text="De vinho branco", parent=copo)
-        val doc11 = Document(name="doc11")
-        doc11.addEntity(objeto)
-        doc11.addEntity(copo)
-        doc11.addEntity(copito)
-        assertEquals(listOf(objeto, copito), doc11.get_Parent_and_Children_vis(copo))
+        doc.add_entity_to_document(objeto)
+        doc.add_entity_to_document(copo)
+        doc.add_entity_to_document(copito)
+        assertEquals(listOf(objeto, copito), doc.get_parent_and_children_vis(copo))
     }
 
-    // Testes a Documentos
+
+    // Document tests
     @Test
     fun test_create_document(){
         assertEquals("doc", doc.name)
     }
 
-    // Ponto 1.
+    // Point 1.
     @Test
     fun test_add_entity_to_document(){
-        doc.addEntity(peso)
-        doc.addEntity(modelo)
-        doc.addEntity(garrafa)
-        assertEquals(listOf(peso, modelo, garrafa), doc.entities)
+        doc.add_entity_to_document(objeto)
+        doc.add_entity_to_document(copo)
+        doc.add_entity_to_document(copito)
+        assertEquals(listOf(objeto, copo, copito), doc.entities)
     }
 
-    // Ponto 1.
+    // Point 1.
     @Test
     fun test_remove_entity_to_document(){
-        doc.addEntity(peso)
-        doc.addEntity(modelo)
-        doc.addEntity(garrafa)
-        doc.removeEntity(modelo)
-        assertEquals(listOf(peso, garrafa), doc.entities)
+        doc.add_entity_to_document(objeto)
+        doc.add_entity_to_document(copo)
+        doc.add_entity_to_document(copito)
+        doc.remove_entity_from_document(copito)
+        assertEquals(listOf(objeto, copo), doc.entities)
     }
 
-    // Ponto 4.
+    // Point 4.
     @Test
     fun test_pretty_print(){
-//        doc.addEntity(peso)
-//        val modelo = Entity(name="modelo", text="Automatico", parent=peso)
-//        val garrafa =  Entity(name="garrafa", attributes= mutableListOf(plastico), parent=peso)
-//        doc.addEntity(modelo)
-//        doc.addEntity(garrafa)
-
-        doc_plano.addEntity(plano)
-        doc_plano.addEntity(curso1)
-        doc_plano.addEntity(fuc1)
-        doc_plano.addEntity(nome1)
-        doc_plano.addEntity(ects1)
-        doc_plano.addEntity(avaliacao1)
-        doc_plano.addEntity(componente1)
-        doc_plano.addEntity(componente2)
-        doc_plano.addEntity(fuc2)
-        doc_plano.addEntity(nome2)
-        doc_plano.addEntity(ects2)
-        doc_plano.addEntity(avaliacao2)
-        doc_plano.addEntity(componente3)
-        doc_plano.addEntity(componente4)
-        doc_plano.addEntity(componente5)
+        doc_plano.add_entity_to_document(plano)
+        doc_plano.add_entity_to_document(curso1)
+        doc_plano.add_entity_to_document(fuc1)
+        doc_plano.add_entity_to_document(nome1)
+        doc_plano.add_entity_to_document(ects1)
+        doc_plano.add_entity_to_document(avaliacao1)
+        doc_plano.add_entity_to_document(componente1)
+        doc_plano.add_entity_to_document(componente2)
+        doc_plano.add_entity_to_document(fuc2)
+        doc_plano.add_entity_to_document(nome2)
+        doc_plano.add_entity_to_document(ects2)
+        doc_plano.add_entity_to_document(avaliacao2)
+        doc_plano.add_entity_to_document(componente3)
+        doc_plano.add_entity_to_document(componente4)
+        doc_plano.add_entity_to_document(componente5)
 
         val expected_output = """
         <plano>
@@ -247,27 +228,27 @@ class Tests {
         </plano>
     """.trimIndent()
 
-        assertEquals(expected_output, doc_plano.prettyPrint(doc_plano.entities[0]))
+        assertEquals(expected_output, doc_plano.pretty_print(doc_plano.entities[0]))
     }
 
-    // Ponto 4.
+    // Point 4.
     @Test
     fun test_pretty_print_to_file(){
-        doc_plano.addEntity(plano)
-        doc_plano.addEntity(curso1)
-        doc_plano.addEntity(fuc1)
-        doc_plano.addEntity(nome1)
-        doc_plano.addEntity(ects1)
-        doc_plano.addEntity(avaliacao1)
-        doc_plano.addEntity(componente1)
-        doc_plano.addEntity(componente2)
-        doc_plano.addEntity(fuc2)
-        doc_plano.addEntity(nome2)
-        doc_plano.addEntity(ects2)
-        doc_plano.addEntity(avaliacao2)
-        doc_plano.addEntity(componente3)
-        doc_plano.addEntity(componente4)
-        doc_plano.addEntity(componente5)
+        doc_plano.add_entity_to_document(plano)
+        doc_plano.add_entity_to_document(curso1)
+        doc_plano.add_entity_to_document(fuc1)
+        doc_plano.add_entity_to_document(nome1)
+        doc_plano.add_entity_to_document(ects1)
+        doc_plano.add_entity_to_document(avaliacao1)
+        doc_plano.add_entity_to_document(componente1)
+        doc_plano.add_entity_to_document(componente2)
+        doc_plano.add_entity_to_document(fuc2)
+        doc_plano.add_entity_to_document(nome2)
+        doc_plano.add_entity_to_document(ects2)
+        doc_plano.add_entity_to_document(avaliacao2)
+        doc_plano.add_entity_to_document(componente3)
+        doc_plano.add_entity_to_document(componente4)
+        doc_plano.add_entity_to_document(componente5)
 
         val expected_output = """
         <plano>
@@ -295,117 +276,150 @@ class Tests {
         val filePath = "output.xml"
         val testFile = File(filePath)
 
-        // Chame a função para escrever a representação formatada no arquivo
-        doc_plano.prettyPrintToFile(doc_plano.entities[0], outputFile = testFile)
+        doc_plano.pretty_print_to_file(doc_plano.entities[0], outputFile = testFile)
 
-        // Verifique se o arquivo foi criado
         assert(testFile.exists())
 
-        // Verifique se o conteúdo do arquivo é o mesmo que a representação formatada da entidade
         val actualXml = testFile.readText()
         assertEquals(expected_output, actualXml)
 
-        // Limpeza: Exclua o arquivo após o teste
         testFile.delete()
     }
 
-    // Ponto 6.
+    // Point 6.
     @Test
     fun test_add_global_attribute(){
-        doc.addEntity(garrafa)
-        doc.addEntity(garrafa2)
+        doc.add_entity_to_document(garrafa)
+        doc.add_entity_to_document(garrafa2)
 
         doc.add_global_attribute("garrafa", "Material", "Cartao")
         val expectedAttributes = mutableListOf(Attribute("Material", "Plastico"), Attribute("Material", "Cartao"))
         assertEquals(expectedAttributes, garrafa.attributes)
     }
 
-    // Ponto 6.
+    // Points 6 and 5.
     @Test
     fun test_add_global_attribute_vis(){
-        doc.addEntity(garrafa)
-        doc.addEntity(garrafa2)
+        doc.add_entity_to_document(garrafa)
+        doc.add_entity_to_document(garrafa2)
 
         doc.add_global_attribute_vis("garrafa", "Material", "Cartao")
         val expectedAttributes = mutableListOf(Attribute("Material", "Plastico"), Attribute("Material", "Cartao"))
         assertEquals(expectedAttributes, garrafa.attributes)
     }
 
-    // Ponto 7.
+    // Point 7.
     @Test
     fun test_rename_global_entity(){
-        doc.addEntity(modelo)
-        doc.rename_global_entity("modelo", "model")
-        assertEquals("model", modelo.name)
+        doc.add_entity_to_document(objeto)
+        doc.rename_global_entity("objeto", "grande objeto")
+        assertEquals("grande objeto", objeto.name)
     }
 
-    // Com visitante
+    // Points 7 and 5.
     @Test
     fun test_rename_global_entity_vis(){
-        doc.addEntity(modelo)
-        doc.rename_global_entity_vis("modelo", "modelos")
-        assertEquals("modelos", modelo.name)
+        doc.add_entity_to_document(objeto)
+        doc.rename_global_entity_vis("objeto", "grande objeto")
+        assertEquals("grande objeto", objeto.name)
     }
 
-    // Ponto 8
+    // Point 8.
     @Test
     fun test_rename_global_attributes(){
-        doc.addEntity(garrafa)
+        doc.add_entity_to_document(garrafa)
         doc.rename_global_attributes("garrafa", "Material", "Materia")
         assertEquals("Materia", garrafa.attributes.get(0).name)
     }
 
-    // Com visitante
+    // Points 8 and 5.
     @Test
     fun test_rename_global_attributes_vis(){
-        doc.addEntity(garrafa)
-        doc.rename_global_attributes_vis("garrafa", "Material", "Materiais")
-        assertEquals("Materiais", garrafa.attributes.get(0).name)
+        doc.add_entity_to_document(garrafa)
+        doc.rename_global_attributes_vis("garrafa", "Material", "Materia")
+        assertEquals("Materia", garrafa.attributes.get(0).name)
     }
 
-    // Ponto 9.
+    // Point 9.
     @Test
     fun test_remove_global_entities(){
-        val garrafinha = Entity("garrafinha", parent=garrafa)
-        doc.addEntity(garrafa)
-        doc.addEntity(modelo)
-        doc.remove_global_entities("garrafa")
-        assertEquals(listOf(modelo), doc.entities)
+        doc.add_entity_to_document(objeto)
+        doc.add_entity_to_document(copo)
+        doc.add_entity_to_document(copito)
+        doc.remove_global_entities("copito")
+        assertEquals(listOf(objeto, copo), doc.entities)
     }
 
-    //Com visitante
+    // Points 9 and 5.
     @Test
     fun test_remove_global_entities_vis(){
-        val garrafinha = Entity("garrafinha", parent=garrafa)
-        doc.addEntity(garrafa)
-        doc.addEntity(modelo)
-        doc.remove_global_entities_vis("garrafa")
-        assertEquals(listOf(modelo), doc.entities)
+        doc.add_entity_to_document(objeto)
+        doc.add_entity_to_document(copo)
+        doc.add_entity_to_document(copito)
+        doc.remove_global_entities_vis("copito")
+        assertEquals(listOf(objeto, copo), doc.entities)
     }
 
-    // Ponto 10.
+    // Point 10.
     @Test
     fun test_remove_global_attributes(){
-        val pretos = Attribute("Materiais", "Pretos")
-        garrafa.addAttribute(pretos)
-        doc.addEntity(garrafa)
-        doc.addEntity(modelo)
+        val escuro = Attribute("Cor", "Escuro")
+        garrafa.add_attribute_to_entity(escuro)
+        garrafa2.add_attribute_to_entity(escuro)
+        doc.add_entity_to_document(garrafa)
+        doc.add_entity_to_document(garrafa2)
         doc.remove_global_attributes("garrafa", "Material")
-        assertEquals(listOf(pretos), garrafa.attributes)
+        assertEquals(listOf(escuro), garrafa.attributes)
+        assertEquals(listOf(escuro), garrafa2.attributes)
     }
 
-    //Com visitante
+    // Points 10 and 5.
     @Test
     fun test_remove_global_attributes_vis(){
-        val pretos = Attribute("Materiais", "Pretos")
-        garrafa.addAttribute(pretos)
-        doc.addEntity(garrafa)
-        doc.addEntity(modelo)
+        val escuro = Attribute("Cor", "Escuro")
+        garrafa.add_attribute_to_entity(escuro)
+        garrafa2.add_attribute_to_entity(escuro)
+        doc.add_entity_to_document(garrafa)
+        doc.add_entity_to_document(garrafa2)
         doc.remove_global_attributes_vis("garrafa", "Material")
-        assertEquals(listOf(pretos), garrafa.attributes)
+        assertEquals(listOf(escuro), garrafa.attributes)
+        assertEquals(listOf(escuro), garrafa2.attributes)
     }
 
-    // Testes auxiliares
+    // Micro-XPath
+    @Test
+    fun test_get_entity_with_x_path(){
+        val expected1=   """
+            <componente nome="Quizzes" peso="20%"/>
+            <componente nome="Projeto" peso="80%"/>
+            <componente nome="Dissertação" peso="60%"/>
+            <componente nome="Apresentação" peso="20%"/>
+            <componente nome="Discussão" peso="20%"/>""".trimIndent()
+
+        val expected2 = "<curso>Mestrado em Engenharia Informática</curso>"
+
+        doc_plano.add_entity_to_document(plano)
+        doc_plano.add_entity_to_document(curso1)
+        doc_plano.add_entity_to_document(fuc1)
+        doc_plano.add_entity_to_document(nome1)
+        doc_plano.add_entity_to_document(ects1)
+        doc_plano.add_entity_to_document(avaliacao1)
+        doc_plano.add_entity_to_document(componente1)
+        doc_plano.add_entity_to_document(componente2)
+        doc_plano.add_entity_to_document(fuc2)
+        doc_plano.add_entity_to_document(nome2)
+        doc_plano.add_entity_to_document(ects2)
+        doc_plano.add_entity_to_document(avaliacao2)
+        doc_plano.add_entity_to_document(componente3)
+        doc_plano.add_entity_to_document(componente4)
+        doc_plano.add_entity_to_document(componente5)
+
+        assertEquals(expected1, doc_plano.get_entity_with_x_path("fuc/avaliacao/componente"))
+        assertEquals(expected2, doc_plano.get_entity_with_x_path("curso"))
+    }
+
+
+    // Auxiliar tests
     @Test
     fun test_get_attributes(){
         assertEquals(mutableListOf(plastico), garrafa.get_attributes())
@@ -432,39 +446,24 @@ class Tests {
     fun test_get_entity_xml(){
         val expected1 = "<componente nome=\"Quizzes\" peso=\"20%\"/>"
         val expected2 = "<curso>Mestrado em Engenharia Informática</curso>"
+
+        doc_plano.add_entity_to_document(plano)
+        doc_plano.add_entity_to_document(curso1)
+        doc_plano.add_entity_to_document(fuc1)
+        doc_plano.add_entity_to_document(nome1)
+        doc_plano.add_entity_to_document(ects1)
+        doc_plano.add_entity_to_document(avaliacao1)
+        doc_plano.add_entity_to_document(componente1)
+        doc_plano.add_entity_to_document(componente2)
+        doc_plano.add_entity_to_document(fuc2)
+        doc_plano.add_entity_to_document(nome2)
+        doc_plano.add_entity_to_document(ects2)
+        doc_plano.add_entity_to_document(avaliacao2)
+        doc_plano.add_entity_to_document(componente3)
+        doc_plano.add_entity_to_document(componente4)
+        doc_plano.add_entity_to_document(componente5)
+
         assertEquals(expected1, doc_plano.get_entity_xml(componente1))
         assertEquals(expected2, doc_plano.get_entity_xml(curso1))
     }
-
-    @Test
-    fun test_get_entity_with_x_path(){
-        val expected1=   """
-            <componente nome="Quizzes" peso="20%"/>
-            <componente nome="Projeto" peso="80%"/>
-            <componente nome="Dissertação" peso="60%"/>
-            <componente nome="Apresentação" peso="20%"/>
-            <componente nome="Discussão" peso="20%"/>""".trimIndent()
-
-        val expected2 = "<curso>Mestrado em Engenharia Informática</curso>"
-
-        doc_plano.addEntity(plano)
-        doc_plano.addEntity(curso1)
-        doc_plano.addEntity(fuc1)
-        doc_plano.addEntity(nome1)
-        doc_plano.addEntity(ects1)
-        doc_plano.addEntity(avaliacao1)
-        doc_plano.addEntity(componente1)
-        doc_plano.addEntity(componente2)
-        doc_plano.addEntity(fuc2)
-        doc_plano.addEntity(nome2)
-        doc_plano.addEntity(ects2)
-        doc_plano.addEntity(avaliacao2)
-        doc_plano.addEntity(componente3)
-        doc_plano.addEntity(componente4)
-        doc_plano.addEntity(componente5)
-
-        assertEquals(expected1, doc_plano.get_entity_with_x_path("fuc/avaliacao/componente"))
-        assertEquals(expected2, doc_plano.get_entity_with_x_path("curso"))
-    }
-
 }

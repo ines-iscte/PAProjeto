@@ -23,7 +23,7 @@ class Attribute(
     }
 
     /**
-     * Verifies if the attribute in question is equal to another type of object.
+     * Verifies if the attribute in question is equal to another attribute.
      *
      * @param[other] The other object of the comparison.
      * @return True: if the other object is also an Attribute and has the same name and value as the first one.
@@ -67,7 +67,6 @@ class Entity(
         if (parent != null) {
             parent.children.add(this)
         }
-
     }
 
     /**
@@ -87,33 +86,31 @@ class Entity(
      * @param[visitor] The visitor function to be invoked with this entity as its argument.
      * @return The boolean value returned by the visitor.
      */
-    //Dunno
     fun accept(visitor: (Entity) -> Boolean){
         visitor(this)
     }
 
-    // Atributos
+    // Relating Attributes
 
+    // Point 2.
     /**
      * Adds a given [attribute] to the list of attributes of the entity.
      * @param[attribute] The attribute to be added to the entity.
      */
-    fun addAttribute(attribute: Attribute){
+    fun add_attribute_to_entity(attribute: Attribute){
         this.attributes.add(attribute)
     }
 
+    // Point 2.
     /**
      * Removes a given [attribute] from the list of attributes of the entity.
      * @param[attribute] The attribute to be removed from the entity.
      */
-    fun removeAttribute(attribute: Attribute){
-//        attributes.forEach(){
-//            if(it == attribute)
-//                attributes.remove(it)
-//        }
+    fun remove_attribute_to_entity(attribute: Attribute){
         attributes.removeIf { it == attribute }
     }
 
+    // Point 2.
     /**
      * Changes the name and/or the value of a given [attribute].
      * Searches for the given attribute in the list of attributes of the entity and updates the name and/or value.
@@ -122,7 +119,7 @@ class Entity(
      * @param[new_name] The name of the attribute to replace the current name. By default, it's null, if there is no change.
      * @param[new_value] The value of the attribute to replace the current value. By default, it's null, if there is no change.
      */
-    fun changeAttribute(attribute: Attribute, new_name: String? = null, new_value: String? = null) {
+    fun change_attribute_to_entity(attribute: Attribute, new_name: String? = null, new_value: String? = null) {
         attributes.forEach {
             if (it == attribute) {
                 if (new_name != null) {
@@ -143,11 +140,11 @@ class Entity(
         return this.attributes
     }
 
+    // Relating entities text
     /**
      * Getter of the text that belongs to the entity.
      * @return Text related to the entity.
      */
-    // Texto
     fun get_entity_text(): String{
         return this.text
     }
@@ -170,17 +167,19 @@ class Entity(
         text=""
     }
 
-    // Entidade mãe e entidades aninhadas
+    // Relating parent and childrens
 
+    // Point 3.
     /**
      * Getter of the entity's parent.
      * If the parent doesn't exist, the entity is the root and will return null.
      * @return The parent of the entity. If there is no parent, it returns null.
      */
-    fun get_Parent(): Entity?{
+    fun get_parent(): Entity?{
         return this.parent
     }
 
+    // Point 3.
     /**
      * Getter of all the descendants of the entity (children, grandchildren, great-grandchildren, etc.).
      *
@@ -189,27 +188,29 @@ class Entity(
      *
      * @return List of all the descendant entities of the entity.
      */
-    // Ao contar com os filhos das entidades filhas
-    fun get_all_Children() : List<Entity> {
+    // Counting the children of the children
+    fun get_all_children() : List<Entity> {
         val list: MutableList<Entity> = mutableListOf()
         this.children.forEach {
             //if (it is Entity) {
             list.add(it)
-            list.addAll(it.get_all_Children())
+            list.addAll(it.get_all_children())
             //}
         }
         return list
     }
 
+    // Point 3.
     /**
      * Getter of the direct children of the entity.
      * @return List of children of the entity.
      */
-    // Sem contar com os filhos das entidades filhas
-    fun get_Children() : List<Entity> {
+    // Not counting the children of the children
+    fun get_children() : List<Entity> {
         return this.children
     }
 
+    // Point 3.
     /**
      * Getter of the parent and the direct children of the entity.
      *
@@ -218,43 +219,19 @@ class Entity(
      *
      * @return List with the parent of the entity and its children.
      */
-    fun get_Parent_and_Children(): List<Entity>{
+    fun get_parent_and_children(): List<Entity>{
 
         val list = mutableListOf<Entity>()
         // Adiciona o pai
-        this.get_Parent()?.let { parent ->
+        this.get_parent()?.let { parent ->
             list.add(parent)
         }
         // Adiciona os filhos
-        list.addAll(this.get_Children())
+        list.addAll(this.get_children())
 
         return list
     }
 }
-
-//fun Document.add_global_attribute_vis(entity_name: String, attribute_name: String, attribute_value: String){
-//    var att: Attribute? = null
-//    this.entities.forEach(){
-//        var att_list = it.get_attributes()
-//        att_list.forEach(){
-//            if (it.name==entity_name && it.value==attribute_value) {
-//                att = it
-//                return@forEach
-//            }
-//        }
-//    }
-//    if (att == null)
-//        att = Attribute(name=attribute_name, value=attribute_value)
-//
-//    val attCopy = att
-//
-//    // Para preservar a variável att, que pode ser modificada dentro da expressão do visitor
-//    this.accept {
-//            if (entity_name == it.name && attCopy != null)
-//                it.addAttribute(attCopy!!)
-//            true
-//    }
-//}
 
 /**
  * Class that represents a document with a name and a list of entities.
@@ -273,75 +250,43 @@ class Document(
      * The visitor function should return true to continue visiting other entities, or false to stop the process.
      * @param visitor The visitor function to be applied to this entity and its children.
      */
-    // Dunno x2
     fun accept(visitor: (Entity) -> Boolean) {
         entities.forEach {
                 it.accept(visitor)
             }
     }
 
+    // Point 1.
     /**
      * Adds an entity to the document.
      * Adds to the list of entities the [entity].
      * @param[entity] The entity to be added to the document.
      */
-    fun addEntity(entity: Entity) {
+    fun add_entity_to_document(entity: Entity) {
         entities.add(entity)
     }
 
+    // Point 1.
     /**
      * Removes an entity from the document.
      * It goes to the list of entities of the document and removes the one given as [entity].
      * @param[entity] The entity to be removed from the document.
      */
-    fun removeEntity(entity: Entity) {
-//        entities.forEach() {
-//            if (it == entity)
-//                entities.remove(it)
-//        }
+    fun remove_entity_from_document(entity: Entity) {
         entities.removeIf { it == entity }
     }
 
+    // Point 4.
     /**
      * Does the pretty print by calling an auxiliary function.
      * @param[entity] The root entity or the entity where the pretty print begins.
      * @return Call another function that deals with the construction of the structure of the xml File.
      */
-    fun prettyPrint(entity: Entity, indent: String = ""): String {
-//        val stringBuilder = StringBuilder()
-//
-//        stringBuilder.append("$indent<${entity.name}")
-//        if (entity.attributes.isNotEmpty()) {
-//            entity.attributes.forEach { attribute ->
-//                stringBuilder.append(" ${attribute.name}=\"${attribute.value}\"")
-//            }
-//        }
-//
-//        if (entity.children.isEmpty() && entity.text.isEmpty()) {
-//            stringBuilder.append("/>")
-//        } else {
-//            stringBuilder.append(">")
-//
-//            if (entity.text.isNotEmpty())
-//                stringBuilder.append("${entity.text}")
-//
-//            if (entity.children.isNotEmpty()) {
-//                stringBuilder.appendLine()
-//                entity.children.forEach { child ->
-//                    stringBuilder.append(prettyPrint(child, "$indent    "))
-//                    stringBuilder.appendLine()
-//                }
-//                stringBuilder.append("$indent")
-//            }
-//
-//            if (entity.children.isNotEmpty() || entity.text.isNotEmpty()) {
-//                stringBuilder.append("</${entity.name}>")
-//            }
-//        }
-
-        return get_entity_xml(entity = entity, indent = indent, pretty_print = true)
+    fun pretty_print(entity: Entity): String {
+        return get_entity_xml(entity = entity, pretty_print = true)
     }
 
+    // Point 4.
     /**
      * Does the pretty print and write it down in a given File.
      * @param[entity] The root entity or the entity where the pretty print begins.
@@ -349,11 +294,12 @@ class Document(
      * @return Call another function that deals with the construction of the structure of the xml File and
      * write it in the File.
      */
-    fun prettyPrintToFile(entity: Entity, indent: String = "", outputFile: File) {
-        val xmlString = prettyPrint(entity, indent)
+    fun pretty_print_to_file(entity: Entity, outputFile: File) {
+        val xmlString = pretty_print(entity)
         outputFile.writeText(xmlString)
     }
 
+    // Point 6.
     /**
      * Adds attributes to the document globally.
      *
@@ -365,18 +311,16 @@ class Document(
      * @param[attribute_name] Name of the attribute to be added.
      * @param[attribute_value] Value of the attribute to be added.
      */
-    // Ponto 6
     fun add_global_attribute(entity_name: String, attribute_name: String, attribute_value: String) {
-        // Procura ou cria o atributo
         val attribute = Attribute(attribute_name, attribute_value)
 
-        // Adiciona o atributo a todas as entidades com o nome especificado
         this.entities.filter { it.name == entity_name }
             .forEach {
-                it.addAttribute(attribute)
+                it.add_attribute_to_entity(attribute)
             }
     }
 
+    // Point 7.
     /**
      * Renames entities to the document globally.
      *
@@ -386,15 +330,14 @@ class Document(
      * @param[old_name] Current name of the entities - to be renamed.
      * @param[new_name] Future name of the entities - to replace the current.
      */
-    // Ponto 7
     fun rename_global_entity(old_name: String, new_name:String){
-        this.entities.forEach(){
-            if (old_name == it.name) {
+        this.entities.filter { old_name == it.name }
+            .forEach {
                 it.name=new_name
             }
-        }
     }
 
+    // Point 8.
     /**
      * Renames attributes of the document globally.
      *
@@ -407,7 +350,6 @@ class Document(
      * @param[old_attribute_name] Current name of the attribute - to be renamed.
      * @param[new_attribute_name] Future name of the attribute - to replace the current.
      */
-    // Ponto 8
     fun rename_global_attributes(entity_name: String, old_attribute_name: String, new_attribute_name: String){
         entities.forEach(){
             if (entity_name == it.name) {
@@ -419,6 +361,7 @@ class Document(
         }
     }
 
+    // Point 9.
     /**
      * Removes the entity from the document globally.
      *
@@ -428,31 +371,17 @@ class Document(
      *
      * @param[entity_name] Name of the entity to be removed.
      */
-    // Ponto 9
     fun remove_global_entities(entity_name: String){
         val list: MutableList <Entity> = mutableListOf()
-        entities.forEach(){
-            if (entity_name == it.name) {
+
+        this.entities.filter { it.name == entity_name }
+            .forEach {
                 list.add(it)
             }
-        }
         entities.removeAll(list)
     }
 
-    // Ponto 10
-//    fun remove_global_attributes(entity_name: String, attribute_name: String) {
-//        val list: MutableList <Entity> = mutableListOf()
-//        entities.forEach(){
-//            if (entity_name == it.name) {
-//                it.attributes.forEach(){
-//                    if (it.name == attribute_name)
-//                        list.add(it)
-//                }
-//                it.attributes.removeAll(list)
-//            }
-//        }
-//    }
-
+    // Point 10.
     /**
      * Removes attributes of the document globally.
      *
@@ -465,8 +394,8 @@ class Document(
     fun remove_global_attributes(entity_name: String, attribute_name: String) {
         entities.forEach { entity ->
             if (entity_name == entity.name) {
-                val attributesToRemove = entity.attributes.filter { it.name == attribute_name }
-                entity.attributes.removeAll(attributesToRemove)
+                val attributes_to_remove = entity.attributes.filter { it.name == attribute_name }
+                entity.attributes.removeAll(attributes_to_remove)
             }
         }
     }
@@ -500,12 +429,12 @@ class Document(
             if (entity.text.isNotEmpty())
                 stringBuilder.append("${entity.text}")
 
-            // No caso de ir buscar os filhos da entidade (no caso da função ser usada para pretty_print)
+            // In case pretty_print is True, it will get the children structure too
             if (pretty_print){
                 if (entity.children.isNotEmpty()) {
                     stringBuilder.appendLine()
                     entity.children.forEach { child ->
-                        stringBuilder.append(prettyPrint(child, "$indent    "))
+                        stringBuilder.append(get_entity_xml(entity=child, pretty_print=true ,indent="$indent    "))
                         stringBuilder.appendLine()
                     }
                     stringBuilder.append("$indent")
@@ -517,69 +446,6 @@ class Document(
         }
         return stringBuilder.toString()
     }
-
-
-//    fun aux_get_entity_with_x_path(x_path: String, entities_list: List<Entity>): Entity? {
-//        val first_entity = x_path.substringBefore("/")
-//        val other_entities = x_path.substringAfter("/")
-//
-//        entities_list.forEach {
-//            if (first_entity == it.name) {
-//                if (other_entities.isEmpty()) {
-//                    return it
-//                } else {
-//                    return aux_get_entity_with_x_path(other_entities, it.get_Children())
-//                }
-//            }
-//        }
-//
-//        return null
-
-//    fun aux_get_entity_with_x_path(x_path: String, entity_to_explore: Entity): MutableList<Entity> {
-//
-//        val foundEntities = mutableListOf<Entity>()
-//
-//        val parts = x_path.split("/")
-//        val first_entity = parts.first()
-//        val other_entities = parts.drop(1).joinToString("/")
-//
-////        if (first_entity == entity_to_explore?.name && other_entities == ""){
-////            println("Acabei " + entity_to_explore)
-////            foundEntities.add(entity_to_explore)
-////        }
-//
-//
-//        var entities_list = entity_to_explore.get_Children()
-//        println("List" + entities_list)
-//        val foundEntity = entities_list.find { it.name == first_entity }
-//
-//        println("foundEntity" + foundEntity)
-//        println("Other entities " + other_entities)
-//
-////        if (first_entity == foundEntity?.name && other_entities == ""){
-////            println("Acabei " + foundEntity)
-////            foundEntities.add(foundEntity)
-////        }
-////
-////        if (foundEntity != null && other_entities.isNotEmpty()) {
-////            println("Vai abaixo")
-////            return aux_get_entity_with_x_path(other_entities, foundEntity)
-////        }
-//
-//        if (foundEntity != null) {
-//            if (other_entities.isEmpty()) {
-//                foundEntities.add(foundEntity)
-//            } else {
-//                val childEntities = aux_get_entity_with_x_path(other_entities, foundEntity)
-//                foundEntities.addAll(childEntities)
-//            }
-//        }
-//
-//        return foundEntities
-//    }
-
-
-
 
     /**
      * For each split in the XPath String ("/"), it searches for the entity name where is equal to the first
@@ -608,15 +474,11 @@ class Document(
 
     val matchingEntities = entities_to_explore.filter { it.name == first_entity }
 
-    println("Matching entities " + matchingEntities)
-
     matchingEntities.forEach { entity ->
         if (other_entities.isEmpty()) {
-            println("Adicionei " + entity)
             foundEntities.add(entity)
         } else {
-            val childEntities = aux_get_entity_with_x_path(other_entities, entity.get_Children())
-            println("Adicionei crianças " + childEntities)
+            val childEntities = aux_get_entity_with_x_path(other_entities, entity.get_children())
             foundEntities.addAll(childEntities)
         }
     }
@@ -624,6 +486,7 @@ class Document(
     return foundEntities
 }
 
+    // Micro-XPath
     /**
      * Given a path, joins all the entities that the auxiliary function "aux_get_entity_with_x_path"
      * relates to the [x_path].
@@ -634,8 +497,8 @@ class Document(
     fun get_entity_with_x_path(x_path: String): String {
         val stringBuilder = StringBuilder()
         val returned_entities = aux_get_entity_with_x_path(x_path, entities)
-        println(returned_entities)
-        if (returned_entities != null) {
+
+        if (returned_entities.isNotEmpty()) {
             returned_entities.forEachIndexed { index, entity ->
                 stringBuilder.append(get_entity_xml(entity))
                 if (index != returned_entities.size - 1)
@@ -650,14 +513,12 @@ class Document(
  * NOTE: The following functions are another version of the exercises using visitors.
  * These functions are related to the class Document.
  */
-// Funções usando objetos Visitor (Ponto 5)
+// Functions using Visitors (Point 5.)
 
-// Relativas a Entidades, usando Documento
+// Relating Entities, using Documents
+// The functions must be related to a Document, so that the entities available in it are searched, when using the Visitor method.
 
-// As funções têm de estar relacionada com um Documento, de modo a serem percorridas as entidades disponíveis no mesmo,
-// ao ser usado o método de Visitante.
-
-
+// Point 3.
 /**
  * Searches for the parent of an entity.
  *
@@ -666,11 +527,11 @@ class Document(
  * @param[child_entity] The child entity for which to find the parent.
  * @return The parent entity of the [child_entity]. If not found, returns null.
  */
-
-fun Document.get_Parent_vis(child_entity: Entity): Entity?{
+fun Document.get_parent_vis(child_entity: Entity): Entity?{
     var result: Entity? = null
+
     this.accept { entity ->
-        if (entity == child_entity.get_Parent()) {
+        if (entity == child_entity.get_parent()) {
             result = entity
         }
         true
@@ -678,6 +539,7 @@ fun Document.get_Parent_vis(child_entity: Entity): Entity?{
     return result
 }
 
+// Point 3.
 /**
  * Searches for the children of an entity.
  *
@@ -687,19 +549,19 @@ fun Document.get_Parent_vis(child_entity: Entity): Entity?{
  * @param[parent_entity] The parent entity for which to find its children.
  * @return The list of children of the [parent_entity].
  */
-fun Document.get_Children_vis(parent_entity: Entity) : List<Entity> {
+fun Document.get_children_vis(parent_entity: Entity) : List<Entity> {
     val list = mutableListOf<Entity>()
 
     this.accept { entity ->
         if (entity.parent == parent_entity){
             list.add(entity)
         }
-
         true
     }
     return list
 }
 
+// Point 7.
 /**
  * Looks for the parent and children of an entity.
  *
@@ -709,12 +571,11 @@ fun Document.get_Children_vis(parent_entity: Entity) : List<Entity> {
  * @param[main_entity] The entity for which to find its parent and children.
  * @return List with the parent and children of the entity given.
  */
-fun Document.get_Parent_and_Children_vis(main_entity: Entity): List<Entity>{
-
+fun Document.get_parent_and_children_vis(main_entity: Entity): List<Entity>{
     val list = mutableListOf<Entity>()
 
     this.accept { entity ->
-        if (entity in main_entity.get_Children() || entity == main_entity.get_Parent()) {
+        if (entity in main_entity.get_children() || entity == main_entity.get_parent()) {
             list.add(entity)
         }
         true
@@ -722,8 +583,9 @@ fun Document.get_Parent_and_Children_vis(main_entity: Entity): List<Entity>{
     return list
 }
 
-// Relativas a Documentos
+// Relating Documents
 
+// Point 6.
 /**
  * Adds a global attribute to a document.
  *
@@ -737,17 +599,17 @@ fun Document.get_Parent_and_Children_vis(main_entity: Entity): List<Entity>{
  * @param[attribute_value] Value of the attribute ti be added.
  */
 fun Document.add_global_attribute_vis(entity_name: String, attribute_name: String, attribute_value: String) {
-
     val attribute = Attribute(attribute_name, attribute_value)
 
     this.accept {
         if (entity_name == it.name) {
-            it.addAttribute(attribute)
+            it.add_attribute_to_entity(attribute)
         }
         true
     }
 }
 
+// Point 7.
 /**
  * Renames entities to the document globally.
  *
@@ -757,7 +619,6 @@ fun Document.add_global_attribute_vis(entity_name: String, attribute_name: Strin
  * @param[old_name] Current name of the entities - to be renamed.
  * @param[new_name] Future name of the entities - to replace the current.
  */
-// Ponto 7
 fun Document.rename_global_entity_vis(old_name: String, new_name:String){
     this.accept {
         if (old_name == it.name) {
@@ -767,6 +628,7 @@ fun Document.rename_global_entity_vis(old_name: String, new_name:String){
     }
 }
 
+// Point 8.
 /**
  * Renames global attributes of the document.
  *
@@ -778,7 +640,6 @@ fun Document.rename_global_entity_vis(old_name: String, new_name:String){
  * @param[old_attribute_name] Current name of the attributes - to be renamed.
  * @param[new_attribute_name] Future name of the attributes - to replace the current.
  */
-// Ponto 8
 fun Document.rename_global_attributes_vis(entity_name: String, old_attribute_name: String, new_attribute_name: String){
     this.accept {
         if (entity_name == it.name) {
@@ -791,37 +652,28 @@ fun Document.rename_global_attributes_vis(entity_name: String, old_attribute_nam
     }
 }
 
+// Point 9.
 /**
  * Removes the entity from the document globally.
  *
  * Goes through the hierarchy of the document, starting at the root, and looks for the entities which name is
- * [entity_name].Removes from the document's entities list those which fulfill the previous condition.
+ * [entity_name]. Removes from the document's entities list those which fulfill the previous condition.
  *
  * @param[entity_name] Name of the entities to be removed.
  */
-// Ponto 9
 fun Document.remove_global_entities_vis(entity_name: String) {
+    val list = mutableListOf<Entity>()
+
     this.accept { entity ->
         if (entity.name == entity_name) {
-            entities.remove(entity)
+            list.add(entity)
         }
         true
     }
+    entities.removeAll(list)
 }
 
-// Ponto 10
-//fun Document.remove_global_attributes_vis(entity_name: String, attribute_name: String){
-//    this.accept { entity ->
-//        if (entity_name == entity.name) {
-//            entity.attributes.forEach(){
-//                if (it.name==attribute_name)
-//                    entity.attributes.remove(it)
-//            }
-//        }
-//        true
-//    }
-//}
-
+// Point 10.
 /**
  * Removes attributes of the document globally.
  *
@@ -832,7 +684,6 @@ fun Document.remove_global_entities_vis(entity_name: String) {
  * @param[entity_name] Name of the entities which contain the attributes.
  * @param[attribute_name] Name of the attributes to be removed.
  */
-
 fun Document.remove_global_attributes_vis(entity_name: String, attribute_name: String) {
     this.accept { entity ->
         if (entity_name == entity.name) {
