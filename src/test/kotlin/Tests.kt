@@ -8,7 +8,7 @@ class Tests {
     val doc = Document(name="doc")
 
     // Entity without children or attributes
-    val modelo = Entity(name="modelo", text="Automático")
+    val modelo = Entity(name="modelo")
 
     // Entities with attributes
     val plastico = Attribute("Material", "Plastico")
@@ -18,83 +18,87 @@ class Tests {
 
     // Entities with children
     val objeto = Entity(name="objeto")
-    val copo =  Entity(name="copo", text="De vinho", attributes= mutableListOf(plastico, papel), parent=objeto)
-    val copito = Entity(name="copito", text="De vinho branco", parent=copo)
+    val copo =  Entity(name="copo", attributes= mutableListOf(plastico, papel), parent=objeto)
+    val copito = Entity(name="copito", parent=copo)
+
+    init{
+        modelo.change_entity_text("Automático")
+    }
 
     // Document relating to the example given
     val doc_plano = Document(name="doc_plano")
 
     val plano = Entity(name="plano")
     val curso1 = Entity(name="curso", text="Mestrado em Engenharia Informática", parent = plano)
-    val codigo1 = Attribute(name="codigo", value="M4310")
+    val codigo1 = Attribute(name ="codigo", value ="M4310")
     val fuc1 = Entity(name="fuc", attributes= mutableListOf(codigo1), parent = plano)
     val nome1 = Entity(name="nome", text="Programação Avançada", parent=fuc1)
     val ects1 = Entity(name="ects", text="6.0", parent=fuc1)
     val avaliacao1 = Entity(name="avaliacao", parent=fuc1)
-    val componente_nome1 = Attribute(name="nome", value="Quizzes")
-    val componente_nome2 = Attribute(name="peso", value="20%")
+    val componente_nome1 = Attribute(name ="nome", value ="Quizzes")
+    val componente_nome2 = Attribute(name ="peso", value ="20%")
     val componente1 = Entity(name="componente", attributes= mutableListOf(componente_nome1, componente_nome2), parent=avaliacao1)
-    val componente_nome3 = Attribute(name="nome", value="Projeto")
-    val componente_nome4 = Attribute(name="peso", value="80%")
+    val componente_nome3 = Attribute(name ="nome", value ="Projeto")
+    val componente_nome4 = Attribute(name ="peso", value ="80%")
     val componente2 = Entity(name="componente", attributes= mutableListOf(componente_nome3, componente_nome4), parent=avaliacao1)
 
-    val codigo2 = Attribute(name="codigo", value="03782")
+    val codigo2 = Attribute(name ="codigo", value ="03782")
     val fuc2 = Entity(name="fuc", attributes= mutableListOf(codigo2), parent = plano)
     val nome2 = Entity(name="nome", text="Dissertação", parent=fuc2)
     val ects2 = Entity(name="ects", text="42.0", parent=fuc2)
     val avaliacao2 = Entity(name="avaliacao", parent=fuc2)
-    val componente_nome5 = Attribute(name="nome", value="Dissertação")
-    val componente_nome6 = Attribute(name="peso", value="60%")
+    val componente_nome5 = Attribute(name ="nome", value ="Dissertação")
+    val componente_nome6 = Attribute(name ="peso", value ="60%")
     val componente3 = Entity(name="componente", attributes= mutableListOf(componente_nome5, componente_nome6), parent=avaliacao2)
-    val componente_nome7 = Attribute(name="nome", value="Apresentação")
-    val componente_nome8 = Attribute(name="peso", value="20%")
+    val componente_nome7 = Attribute(name ="nome", value ="Apresentação")
+    val componente_nome8 = Attribute(name ="peso", value ="20%")
     val componente4 = Entity(name="componente", attributes= mutableListOf(componente_nome7, componente_nome8), parent=avaliacao2)
-    val componente_nome9 = Attribute(name="nome", value="Discussão")
-    val componente_nome10 = Attribute(name="peso", value="20%")
+    val componente_nome9 = Attribute(name ="nome", value ="Discussão")
+    val componente_nome10 = Attribute(name ="peso", value ="20%")
     val componente5 = Entity(name="componente", attributes= mutableListOf(componente_nome9, componente_nome10), parent=avaliacao2)
 
 
     // Attribute tests
     @Test
     fun test_create_attribute(){
-        assertEquals("Material", plastico.name)
-        assertEquals("Papel", papel.value)
+        assertEquals("Material", plastico.get_attribute_name())
+        assertEquals("Papel", papel.get_attribute_value())
     }
 
     // Point 2.
     @Test
     fun test_add_attribute_to_entity(){
         val reciclado = Attribute("Reciclado", "1.40€")
-        modelo.add_attribute_to_entity(reciclado)
-        val nao_reciclado = Attribute("Não Reciclado", "1.20€")
-        modelo.add_attribute_to_entity(nao_reciclado)
-        assertEquals(listOf(reciclado, nao_reciclado), modelo.attributes)
+        modelo.add_attribute(reciclado)
+        val normal = Attribute("Normal", "1.20€")
+        modelo.add_attribute(normal)
+        assertEquals(listOf(reciclado, normal), modelo.attributes)
     }
 
     // Point 2.
     @Test
     fun test_remove_attribute_to_entity(){
         val reciclado = Attribute("Reciclado", "1.40€")
-        modelo.add_attribute_to_entity(reciclado)
-        val nao_reciclado = Attribute("Não Reciclado", "1.20€")
-        modelo.add_attribute_to_entity(nao_reciclado)
-        modelo.remove_attribute_to_entity(reciclado)
-        assertEquals(listOf(nao_reciclado), modelo.attributes)
+        modelo.add_attribute(reciclado)
+        val normal = Attribute("Normal", "1.20€")
+        modelo.add_attribute(normal)
+        modelo.remove_attribute(reciclado)
+        assertEquals(listOf(normal), modelo.attributes)
     }
 
     // Point 2.
     @Test
     fun test_change_attribute_to_entity(){
         val reciclado = Attribute("Reciclado", "1.40€")
-        modelo.add_attribute_to_entity(reciclado)
-        val nao_reciclado = Attribute("Não Reciclado", "1.20€")
-        modelo.add_attribute_to_entity(nao_reciclado)
-        modelo.change_attribute_to_entity(attribute=reciclado, new_value="1.50€")
-        modelo.change_attribute_to_entity(attribute=nao_reciclado, new_name="50% reciclado", new_value="1.30€")
+        modelo.add_attribute(reciclado)
+        val normal = Attribute("Normal", "1.20€")
+        modelo.add_attribute(normal)
+        modelo.change_attribute(attribute=reciclado, new_value="1.50€")
+        modelo.change_attribute(attribute=normal, new_name="Semi-normal", new_value="1.70€")
 
         val expectedAttributes = listOf(
             Attribute("Reciclado", "1.50€"),
-            Attribute("50% reciclado", "1.30€")
+            Attribute("Semi-normal", "1.70€")
         )
 
         assertEquals(expectedAttributes, modelo.attributes)
@@ -105,7 +109,7 @@ class Tests {
     @Test
     fun test_create_entity() {
         assertEquals("modelo", modelo.name)
-        assertEquals("Automático", modelo.text)
+        assertEquals("Automático", modelo.get_entity_text())
         assertEquals(mutableListOf(plastico), garrafa.attributes)
     }
 
@@ -303,8 +307,8 @@ class Tests {
         doc.add_entity_to_document(garrafa)
         doc.add_entity_to_document(garrafa2)
 
-        doc.add_global_attribute_vis("garrafa", "Material", "Cartao")
-        val expectedAttributes = mutableListOf(Attribute("Material", "Plastico"), Attribute("Material", "Cartao"))
+        doc.add_global_attribute_vis("garrafa", "Material", "Cortiça")
+        val expectedAttributes = mutableListOf(Attribute("Material", "Plastico"), Attribute("Material", "Cortiça"))
         assertEquals(expectedAttributes, garrafa.attributes)
     }
 
@@ -312,16 +316,16 @@ class Tests {
     @Test
     fun test_rename_global_entity(){
         doc.add_entity_to_document(objeto)
-        doc.rename_global_entity("objeto", "grande objeto")
-        assertEquals("grande objeto", objeto.name)
+        doc.rename_global_entity("objeto", "objetos")
+        assertEquals("objetos", objeto.name)
     }
 
     // Points 7 and 5.
     @Test
     fun test_rename_global_entity_vis(){
         doc.add_entity_to_document(objeto)
-        doc.rename_global_entity_vis("objeto", "grande objeto")
-        assertEquals("grande objeto", objeto.name)
+        doc.rename_global_entity_vis("objeto", "objetos")
+        assertEquals("objetos", objeto.name)
     }
 
     // Point 8.
@@ -329,7 +333,7 @@ class Tests {
     fun test_rename_global_attributes(){
         doc.add_entity_to_document(garrafa)
         doc.rename_global_attributes("garrafa", "Material", "Materia")
-        assertEquals("Materia", garrafa.attributes.get(0).name)
+        assertEquals("Materia", garrafa.attributes.get(0).get_attribute_name())
     }
 
     // Points 8 and 5.
@@ -337,7 +341,7 @@ class Tests {
     fun test_rename_global_attributes_vis(){
         doc.add_entity_to_document(garrafa)
         doc.rename_global_attributes_vis("garrafa", "Material", "Materia")
-        assertEquals("Materia", garrafa.attributes.get(0).name)
+        assertEquals("Materia", garrafa.attributes.get(0).get_attribute_name())
     }
 
     // Point 9.
@@ -364,8 +368,8 @@ class Tests {
     @Test
     fun test_remove_global_attributes(){
         val escuro = Attribute("Cor", "Escuro")
-        garrafa.add_attribute_to_entity(escuro)
-        garrafa2.add_attribute_to_entity(escuro)
+        garrafa.add_attribute(escuro)
+        garrafa2.add_attribute(escuro)
         doc.add_entity_to_document(garrafa)
         doc.add_entity_to_document(garrafa2)
         doc.remove_global_attributes("garrafa", "Material")
@@ -377,8 +381,8 @@ class Tests {
     @Test
     fun test_remove_global_attributes_vis(){
         val escuro = Attribute("Cor", "Escuro")
-        garrafa.add_attribute_to_entity(escuro)
-        garrafa2.add_attribute_to_entity(escuro)
+        garrafa.add_attribute(escuro)
+        garrafa2.add_attribute(escuro)
         doc.add_entity_to_document(garrafa)
         doc.add_entity_to_document(garrafa2)
         doc.remove_global_attributes_vis("garrafa", "Material")

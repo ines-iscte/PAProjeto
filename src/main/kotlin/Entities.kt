@@ -11,9 +11,20 @@ import java.io.File
  * @property[value] Value of the attribute.
  */
 class Attribute(
-    var name: String,
-    var value: String
+    private var name: String?,
+    private var value: String?
 ){
+    /**
+     * Initializes an instance of Attribute.
+     *
+     * If the name given has more than one word, the attribute is not created
+     * @param[name] The name given to the attribute
+     */
+    init {
+        require(name?.split(" ")?.size == 1) {
+            "Name must contain only one word"
+        }
+    }
     /**
      * Returns a String representation of the attribute.
      * @return A String representation of the attribute.
@@ -21,6 +32,23 @@ class Attribute(
     override fun toString(): String {
         return "Attribute(name='$name', value='$value')"
     }
+
+    fun get_attribute_name(): String? {
+        return name
+    }
+
+    fun get_attribute_value(): String? {
+        return value
+    }
+
+    fun set_attribute_name(name: String) {
+        this.name = name
+    }
+
+    fun set_attribute_value(value: String) {
+        this.value = value
+    }
+
 
     /**
      * Verifies if the attribute in question is equal to another attribute.
@@ -30,12 +58,12 @@ class Attribute(
      * False: otherwise.
      */
     override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Attribute) return false
+            if (this === other) return true
+            if (other !is Attribute) return false
 
-        if (name != other.name || value != other.value) return false
+            if (name != other.name || value != other.value) return false
 
-        return true
+            return true
     }
 }
 
@@ -50,23 +78,29 @@ class Attribute(
 
 class Entity(
     var name: String,
-    var text: String = "",
+    private var text: String = "",
     val attributes: MutableList <Attribute> = mutableListOf(),
     val parent: Entity? = null,
-    val children: MutableList<Entity> = mutableListOf()
+    private val children: MutableList<Entity> = mutableListOf()
 
     ){
 
     /**
      * Initializes an instance of Entity.
      *
+     * If the name given has more than one word, the entity is not created
+     * @param[name] The name given to the entity
+     *
      * If a parent entity is given, adds the entity to the list of children of the parent.
      * @param[parent] The parent of the entity. If it is null, this entity will be considered a root entity.
      */
     init{
-        if (parent != null) {
-            parent.children.add(this)
+        require(name.split(" ").size == 1) {
+            "Name of entity must contain only one word"
         }
+        if (parent?.get_entity_text()?.isNotBlank() == true)
+            throw IllegalStateException("Parent entity already has text and cannot have children.")
+        parent?.children?.add(this)
     }
 
     /**
@@ -90,6 +124,10 @@ class Entity(
         visitor(this)
     }
 
+    private fun equal_attribute(name: String?, value: String?): Attribute? {
+        return attributes.find { it.get_attribute_name().equals(name) && it.get_attribute_value().equals(value) }
+    }
+
     // Relating Attributes
 
     // Point 2.
@@ -97,8 +135,12 @@ class Entity(
      * Adds a given [attribute] to the list of attributes of the entity.
      * @param[attribute] The attribute to be added to the entity.
      */
-    fun add_attribute_to_entity(attribute: Attribute){
-        this.attributes.add(attribute)
+    fun add_attribute(attribute: Attribute){
+        if (equal_attribute(attribute.get_attribute_name(), attribute.get_attribute_value()) != null) {
+            throw IllegalStateException("Entity already has this attribute.")
+        } else {
+            this.attributes.add(attribute)
+        }
     }
 
     // Point 2.
@@ -106,7 +148,7 @@ class Entity(
      * Removes a given [attribute] from the list of attributes of the entity.
      * @param[attribute] The attribute to be removed from the entity.
      */
-    fun remove_attribute_to_entity(attribute: Attribute){
+    fun remove_attribute(attribute: Attribute){
         attributes.removeIf { it == attribute }
     }
 
@@ -119,14 +161,51 @@ class Entity(
      * @param[new_name] The name of the attribute to replace the current name. By default, it's null, if there is no change.
      * @param[new_value] The value of the attribute to replace the current value. By default, it's null, if there is no change.
      */
-    fun change_attribute_to_entity(attribute: Attribute, new_name: String? = null, new_value: String? = null) {
+    fun change_attribute(attribute: Attribute, new_name: String? = null, new_value: String? = null) {
+//        attributes.forEach {
+//            if (it == attribute) {
+//                if (new_name != null) {
+//                    require(new_name.split(" ").size == 1) {
+//                        "New name must contain only one word"
+//                    }
+//                    val last_name = it.name
+//                    it.name = new_name
+//                    if (attributes.filter{ attribute.name == it.name && attribute.value == it.value}.size != 0){
+//                        print("This entity already has one equal attribute")
+//                        it.name = last_name
+//                    }
+//                }
+//                if (new_value != null) {
+//                    val last_value = it.value
+//                    it.value = new_value
+//                    if (attributes.filter{ attribute.name == it.name && attribute.value == it.value}.size != 0){
+//                        print("This entity already has one equal attribute")
+//                        it.value = last_value
+//                    }
+//                }
+//            }
+//        }
+
+
+
         attributes.forEach {
             if (it == attribute) {
-                if (new_name != null) {
-                    it.name = new_name
-                }
-                if (new_value != null) {
-                    it.value = new_value
+
+                var aux_name = new_name
+                var aux_value = new_value
+
+                if (new_name == null)
+                    aux_name = it.get_attribute_name()
+                if (new_value == null)
+                    aux_value = it.get_attribute_value()
+
+                if (equal_attribute(aux_name, aux_value) != null) {
+                    throw IllegalStateException("Entity already has this attribute.")
+                } else {
+                    if (new_name != null)
+                        it.set_attribute_name(new_name)
+                    if (new_value != null)
+                        it.set_attribute_value(new_value)
                 }
             }
         }
@@ -155,6 +234,9 @@ class Entity(
      * @param[new_text] The text to replace the current text of the entity.
      */
     fun change_entity_text(new_text: String){
+        if (children.isNotEmpty()) {
+            throw IllegalStateException("Entity already has children and cannot have text.")
+        }
         text=new_text
     }
 
@@ -192,10 +274,8 @@ class Entity(
     fun get_all_children() : List<Entity> {
         val list: MutableList<Entity> = mutableListOf()
         this.children.forEach {
-            //if (it is Entity) {
             list.add(it)
             list.addAll(it.get_all_children())
-            //}
         }
         return list
     }
@@ -222,11 +302,9 @@ class Entity(
     fun get_parent_and_children(): List<Entity>{
 
         val list = mutableListOf<Entity>()
-        // Adiciona o pai
         this.get_parent()?.let { parent ->
             list.add(parent)
         }
-        // Adiciona os filhos
         list.addAll(this.get_children())
 
         return list
@@ -254,6 +332,11 @@ class Document(
         entities.forEach {
                 it.accept(visitor)
             }
+    }
+
+    fun attribute_exists(entity: Entity, attribute: Attribute): Attribute? {
+        println(entity.attributes)
+        return entity.attributes.find { it.get_attribute_name() == attribute.get_attribute_name() && it.get_attribute_value() == attribute.get_attribute_value() }
     }
 
     // Point 1.
@@ -312,11 +395,33 @@ class Document(
      * @param[attribute_value] Value of the attribute to be added.
      */
     fun add_global_attribute(entity_name: String, attribute_name: String, attribute_value: String) {
-        val attribute = Attribute(attribute_name, attribute_value)
+//        val attribute = Attribute(attribute_name, attribute_value)
+//
+//        this.entities.filter { it.name == entity_name }
+//            .forEach {
+//                if (it.attributes.filter{ attribute.name == attribute_name && attribute.value == attribute_value }.size == 0){
+//                    it.add_attribute(attribute)
+//                } else {
+//
+//                    print("The entity already has this attribute")
+//                }
+//
+//            }
+
+        require(attribute_name.split(" ").size == 1) {
+            "New name must contain only one word"
+        }
+
+        val att = Attribute(attribute_name, attribute_value)
 
         this.entities.filter { it.name == entity_name }
             .forEach {
-                it.add_attribute_to_entity(attribute)
+                if (attribute_exists(it, att) != null) {
+                    throw IllegalStateException("Entity already has this attribute.")
+                } else {
+                    it.add_attribute(att)
+                }
+
             }
     }
 
@@ -331,6 +436,10 @@ class Document(
      * @param[new_name] Future name of the entities - to replace the current.
      */
     fun rename_global_entity(old_name: String, new_name:String){
+        require(new_name.split(" ").size == 1) {
+                "New name must contain only one word"
+        }
+
         this.entities.filter { old_name == it.name }
             .forEach {
                 it.name=new_name
@@ -351,12 +460,20 @@ class Document(
      * @param[new_attribute_name] Future name of the attribute - to replace the current.
      */
     fun rename_global_attributes(entity_name: String, old_attribute_name: String, new_attribute_name: String){
-        entities.forEach(){
-            if (entity_name == it.name) {
-                it.attributes.forEach(){
-                    if (it.name==old_attribute_name)
-                        it.name=new_attribute_name
+        require(new_attribute_name.split(" ").size == 1) {
+                "New name must contain only one word"
+        }
+        entities.forEach{ entity ->
+            if (entity_name == entity.name) {
+                entity.attributes.forEach{
+                    if (it.get_attribute_name() == old_attribute_name)
+                        entity.change_attribute(attribute = it, new_name = new_attribute_name)
                 }
+//                it.attributes.forEach{
+//                    if (it.get_attribute_name()==old_attribute_name)
+//                        it.set_attribute_name(new_attribute_name)
+//                }
+
             }
         }
     }
@@ -394,7 +511,7 @@ class Document(
     fun remove_global_attributes(entity_name: String, attribute_name: String) {
         entities.forEach { entity ->
             if (entity_name == entity.name) {
-                val attributes_to_remove = entity.attributes.filter { it.name == attribute_name }
+                val attributes_to_remove = entity.attributes.filter { it.get_attribute_name() == attribute_name }
                 entity.attributes.removeAll(attributes_to_remove)
             }
         }
@@ -417,30 +534,30 @@ class Document(
         stringBuilder.append("$indent<${entity.name}")
         if (entity.attributes.isNotEmpty()) {
             entity.attributes.forEach { attribute ->
-                stringBuilder.append(" ${attribute.name}=\"${attribute.value}\"")
+                stringBuilder.append(" ${attribute.get_attribute_name()}=\"${attribute.get_attribute_value()}\"")
             }
         }
 
-        if (entity.children.isEmpty() && entity.text.isEmpty()) {
+        if (entity.get_children().isEmpty() && entity.get_entity_text().isEmpty()) {
             stringBuilder.append("/>")
         } else {
             stringBuilder.append(">")
 
-            if (entity.text.isNotEmpty())
-                stringBuilder.append("${entity.text}")
+            if (entity.get_entity_text().isNotEmpty())
+                stringBuilder.append("${entity.get_entity_text()}")
 
             // In case pretty_print is True, it will get the children structure too
             if (pretty_print){
-                if (entity.children.isNotEmpty()) {
+                if (entity.get_children().isNotEmpty()) {
                     stringBuilder.appendLine()
-                    entity.children.forEach { child ->
+                    entity.get_children().forEach { child ->
                         stringBuilder.append(get_entity_xml(entity=child, pretty_print=true ,indent="$indent    "))
                         stringBuilder.appendLine()
                     }
                     stringBuilder.append("$indent")
                 }
             }
-            if (entity.children.isNotEmpty() || entity.text.isNotEmpty()) {
+            if (entity.get_children().isNotEmpty() || entity.get_entity_text().isNotEmpty()) {
                 stringBuilder.append("</${entity.name}>")
             }
         }
@@ -599,11 +716,15 @@ fun Document.get_parent_and_children_vis(main_entity: Entity): List<Entity>{
  * @param[attribute_value] Value of the attribute ti be added.
  */
 fun Document.add_global_attribute_vis(entity_name: String, attribute_name: String, attribute_value: String) {
-    val attribute = Attribute(attribute_name, attribute_value)
+    val att = Attribute(attribute_name, attribute_value)
 
     this.accept {
         if (entity_name == it.name) {
-            it.add_attribute_to_entity(attribute)
+            if (attribute_exists(it, att) != null) {
+                throw IllegalStateException("Entity already has this attribute.")
+            } else {
+                it.add_attribute(att)
+            }
         }
         true
     }
@@ -620,6 +741,9 @@ fun Document.add_global_attribute_vis(entity_name: String, attribute_name: Strin
  * @param[new_name] Future name of the entities - to replace the current.
  */
 fun Document.rename_global_entity_vis(old_name: String, new_name:String){
+    require(new_name.split(" ").size == 1) {
+        "New name must contain only one word"
+    }
     this.accept {
         if (old_name == it.name) {
             it.name=new_name
@@ -641,11 +765,15 @@ fun Document.rename_global_entity_vis(old_name: String, new_name:String){
  * @param[new_attribute_name] Future name of the attributes - to replace the current.
  */
 fun Document.rename_global_attributes_vis(entity_name: String, old_attribute_name: String, new_attribute_name: String){
-    this.accept {
-        if (entity_name == it.name) {
-            it.attributes.forEach(){
-                if (it.name==old_attribute_name)
-                    it.name=new_attribute_name
+    require(new_attribute_name.split(" ").size == 1) {
+        "New name must contain only one word"
+    }
+
+    this.accept { entity ->
+        if (entity_name == entity.name) {
+            entity.attributes.forEach(){
+                if (it.get_attribute_name() == old_attribute_name)
+                    entity.change_attribute(attribute = it, new_name = new_attribute_name)
             }
         }
         true
@@ -687,7 +815,7 @@ fun Document.remove_global_entities_vis(entity_name: String) {
 fun Document.remove_global_attributes_vis(entity_name: String, attribute_name: String) {
     this.accept { entity ->
         if (entity_name == entity.name) {
-            val attributesToRemove = entity.attributes.filter { it.name == attribute_name }
+            val attributesToRemove = entity.attributes.filter { it.get_attribute_name() == attribute_name }
             attributesToRemove.forEach { attribute ->
                 entity.attributes.remove(attribute)
             }
