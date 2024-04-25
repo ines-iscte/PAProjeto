@@ -25,6 +25,7 @@ class Attribute(
             "Name must contain only one word"
         }
     }
+
     /**
      * Returns a String representation of the attribute.
      * @return A String representation of the attribute.
@@ -65,6 +66,13 @@ class Attribute(
 
             return true
     }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + value.hashCode()
+        return result
+    }
+
 }
 
 /**
@@ -77,10 +85,10 @@ class Attribute(
  */
 
 class Entity(
-    var name: String,
+    private var name: String,
     private var text: String = "",
-    val attributes: MutableList <Attribute> = mutableListOf(),
-    val parent: Entity? = null,
+    private val attributes: MutableList <Attribute> = mutableListOf(),
+    private val parent: Entity? = null,
     private val children: MutableList<Entity> = mutableListOf()
 
     ){
@@ -122,6 +130,14 @@ class Entity(
      */
     fun accept(visitor: (Entity) -> Boolean){
         visitor(this)
+    }
+
+    fun get_name(): String {
+        return name
+    }
+
+    fun set_name(name: String){
+        this.name=name
     }
 
     private fun equal_attribute(name: String?, value: String?): Attribute? {
@@ -317,8 +333,9 @@ class Entity(
  * @property[entities] List of entities contained in the document.
  */
 class Document(
-    var name: String,
-    val entities: MutableList <Entity> = mutableListOf()
+    private var child: Entity,
+    private val entities: MutableList <Entity> = mutableListOf(),
+    private val encoding: String
 ) {
 
     /**
@@ -331,12 +348,24 @@ class Document(
     fun accept(visitor: (Entity) -> Boolean) {
         entities.forEach {
                 it.accept(visitor)
-            }
+        }
     }
 
-    fun attribute_exists(entity: Entity, attribute: Attribute): Attribute? {
-        println(entity.attributes)
-        return entity.attributes.find { it.get_attribute_name() == attribute.get_attribute_name() && it.get_attribute_value() == attribute.get_attribute_value() }
+    fun get_child(): Entity {
+        return child
+    }
+
+    fun get_entities(): List<Entity> {
+        return entities
+    }
+
+    internal fun attribute_exists(entity: Entity, attribute: Attribute): Attribute? {
+        return entity.get_attributes().find { it.get_attribute_name() == attribute.get_attribute_name() && it.get_attribute_value() == attribute.get_attribute_value() }
+    }
+
+    internal fun entity_exists(name: String, text: String, attributes: MutableList<Attribute>, parent: Entity?, children: List<Entity>): Entity? {
+        return get_entities().find { it.get_name() == name && it.get_entity_text() == text && it.get_attributes() == attributes
+                && it.get_parent() == parent && it.get_children() == children}
     }
 
     // Point 1.
@@ -346,7 +375,12 @@ class Document(
      * @param[entity] The entity to be added to the document.
      */
     fun add_entity_to_document(entity: Entity) {
-        entities.add(entity)
+        if (entity_exists(entity.get_name(), entity.get_entity_text(), entity.get_attributes(), entity.get_parent(), entity.get_children()) != null) {
+            throw IllegalStateException("Document already has this entity.")
+        } else {
+            entities.add(entity)
+        }
+
     }
 
     // Point 1.
@@ -355,7 +389,7 @@ class Document(
      * It goes to the list of entities of the document and removes the one given as [entity].
      * @param[entity] The entity to be removed from the document.
      */
-    fun remove_entity_from_document(entity: Entity) {
+    fun remove_entity(entity: Entity) {
         entities.removeIf { it == entity }
     }
 
@@ -366,7 +400,7 @@ class Document(
      * @return Call another function that deals with the construction of the structure of the xml File.
      */
     fun pretty_print(entity: Entity): String {
-        return get_entity_xml(entity = entity, pretty_print = true)
+        return get_entity_xml(entity = entity, pretty_print = true, encoding)
     }
 
     // Point 4.
@@ -414,7 +448,7 @@ class Document(
 
         val att = Attribute(attribute_name, attribute_value)
 
-        this.entities.filter { it.name == entity_name }
+        this.entities.filter { it.get_name() == entity_name }
             .forEach {
                 if (attribute_exists(it, att) != null) {
                     throw IllegalStateException("Entity already has this attribute.")
@@ -440,9 +474,13 @@ class Document(
                 "New name must contain only one word"
         }
 
-        this.entities.filter { old_name == it.name }
-            .forEach {
-                it.name=new_name
+        this.entities.filter { old_name == it.get_name() }
+            .forEach { entity ->
+                if (entity_exists(new_name, entity.get_entity_text(), entity.get_attributes(), entity.get_parent(), entity.get_children()) != null) {
+                    throw IllegalStateException("Document already has this entity.")
+                } else {
+                    entity.set_name(new_name)
+                }
             }
     }
 
@@ -464,8 +502,8 @@ class Document(
                 "New name must contain only one word"
         }
         entities.forEach{ entity ->
-            if (entity_name == entity.name) {
-                entity.attributes.forEach{
+            if (entity_name == entity.get_name()) {
+                entity.get_attributes().forEach{
                     if (it.get_attribute_name() == old_attribute_name)
                         entity.change_attribute(attribute = it, new_name = new_attribute_name)
                 }
@@ -491,7 +529,7 @@ class Document(
     fun remove_global_entities(entity_name: String){
         val list: MutableList <Entity> = mutableListOf()
 
-        this.entities.filter { it.name == entity_name }
+        this.entities.filter { it.get_name() == entity_name }
             .forEach {
                 list.add(it)
             }
@@ -510,9 +548,9 @@ class Document(
      */
     fun remove_global_attributes(entity_name: String, attribute_name: String) {
         entities.forEach { entity ->
-            if (entity_name == entity.name) {
-                val attributes_to_remove = entity.attributes.filter { it.get_attribute_name() == attribute_name }
-                entity.attributes.removeAll(attributes_to_remove)
+            if (entity_name == entity.get_name()) {
+                val attributes_to_remove = entity.get_attributes().filter { it.get_attribute_name() == attribute_name }
+                entity.get_attributes().removeAll(attributes_to_remove)
             }
         }
     }
@@ -528,12 +566,17 @@ class Document(
      * @param[pretty_print] Defines if it's a String or a pretty print structure.
      * @return Structure of the resulting pretty print.
      */
-    fun get_entity_xml(entity: Entity, pretty_print: Boolean = false, indent: String = ""): String{
+    fun get_entity_xml(entity: Entity, pretty_print: Boolean = false, encoding: String? = null, indent: String = ""): String{
         val stringBuilder = StringBuilder()
 
-        stringBuilder.append("$indent<${entity.name}")
-        if (entity.attributes.isNotEmpty()) {
-            entity.attributes.forEach { attribute ->
+        if(encoding != null) {
+            stringBuilder.append("<${encoding}>")
+            stringBuilder.appendLine()
+        }
+
+        stringBuilder.append("$indent<${entity.get_name()}")
+        if (entity.get_attributes().isNotEmpty()) {
+            entity.get_attributes().forEach { attribute ->
                 stringBuilder.append(" ${attribute.get_attribute_name()}=\"${attribute.get_attribute_value()}\"")
             }
         }
@@ -544,7 +587,7 @@ class Document(
             stringBuilder.append(">")
 
             if (entity.get_entity_text().isNotEmpty())
-                stringBuilder.append("${entity.get_entity_text()}")
+                stringBuilder.append(entity.get_entity_text())
 
             // In case pretty_print is True, it will get the children structure too
             if (pretty_print){
@@ -554,11 +597,11 @@ class Document(
                         stringBuilder.append(get_entity_xml(entity=child, pretty_print=true ,indent="$indent    "))
                         stringBuilder.appendLine()
                     }
-                    stringBuilder.append("$indent")
+                    stringBuilder.append(indent)
                 }
             }
             if (entity.get_children().isNotEmpty() || entity.get_entity_text().isNotEmpty()) {
-                stringBuilder.append("</${entity.name}>")
+                stringBuilder.append("</${entity.get_name()}>")
             }
         }
         return stringBuilder.toString()
@@ -582,14 +625,14 @@ class Document(
      * @param[entities_to_explore] Document's list of entities.
      * @return List of the found entities.
      */
-    fun aux_get_entity_with_x_path(x_path: String, entities_to_explore: List<Entity>): List<Entity> {
+    private fun aux_get_entity_with_x_path(x_path: String, entities_to_explore: List<Entity>): List<Entity> {
     val foundEntities = mutableListOf<Entity>()
 
     val parts = x_path.split("/")
     val first_entity = parts.first()
     val other_entities = parts.drop(1).joinToString("/")
 
-    val matchingEntities = entities_to_explore.filter { it.name == first_entity }
+    val matchingEntities = entities_to_explore.filter { it.get_name() == first_entity }
 
     matchingEntities.forEach { entity ->
         if (other_entities.isEmpty()) {
@@ -670,7 +713,7 @@ fun Document.get_children_vis(parent_entity: Entity) : List<Entity> {
     val list = mutableListOf<Entity>()
 
     this.accept { entity ->
-        if (entity.parent == parent_entity){
+        if (entity.get_parent() == parent_entity){
             list.add(entity)
         }
         true
@@ -719,7 +762,7 @@ fun Document.add_global_attribute_vis(entity_name: String, attribute_name: Strin
     val att = Attribute(attribute_name, attribute_value)
 
     this.accept {
-        if (entity_name == it.name) {
+        if (entity_name == it.get_name()) {
             if (attribute_exists(it, att) != null) {
                 throw IllegalStateException("Entity already has this attribute.")
             } else {
@@ -744,9 +787,13 @@ fun Document.rename_global_entity_vis(old_name: String, new_name:String){
     require(new_name.split(" ").size == 1) {
         "New name must contain only one word"
     }
-    this.accept {
-        if (old_name == it.name) {
-            it.name=new_name
+    this.accept { entity ->
+        if (old_name == entity.get_name()) {
+            if (entity_exists(new_name, entity.get_entity_text(), entity.get_attributes(), entity.get_parent(), entity.get_children()) != null) {
+                throw IllegalStateException("Document already has this entity.")
+            } else {
+                entity.set_name(new_name)
+            }
         }
         true
     }
@@ -770,8 +817,8 @@ fun Document.rename_global_attributes_vis(entity_name: String, old_attribute_nam
     }
 
     this.accept { entity ->
-        if (entity_name == entity.name) {
-            entity.attributes.forEach(){
+        if (entity_name == entity.get_name()) {
+            entity.get_attributes().forEach{
                 if (it.get_attribute_name() == old_attribute_name)
                     entity.change_attribute(attribute = it, new_name = new_attribute_name)
             }
@@ -793,12 +840,12 @@ fun Document.remove_global_entities_vis(entity_name: String) {
     val list = mutableListOf<Entity>()
 
     this.accept { entity ->
-        if (entity.name == entity_name) {
+        if (entity.get_name() == entity_name) {
             list.add(entity)
         }
         true
     }
-    entities.removeAll(list)
+    list.forEach { remove_entity(it) }
 }
 
 // Point 10.
@@ -814,10 +861,10 @@ fun Document.remove_global_entities_vis(entity_name: String) {
  */
 fun Document.remove_global_attributes_vis(entity_name: String, attribute_name: String) {
     this.accept { entity ->
-        if (entity_name == entity.name) {
-            val attributesToRemove = entity.attributes.filter { it.get_attribute_name() == attribute_name }
+        if (entity_name == entity.get_name()) {
+            val attributesToRemove = entity.get_attributes().filter { it.get_attribute_name() == attribute_name }
             attributesToRemove.forEach { attribute ->
-                entity.attributes.remove(attribute)
+                entity.get_attributes().remove(attribute)
             }
         }
         true

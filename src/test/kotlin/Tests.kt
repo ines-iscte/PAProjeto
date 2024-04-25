@@ -4,11 +4,11 @@ import kotlin.test.assertEquals
 
 class Tests {
 
-    // Test Document
-    val doc = Document(name="doc")
-
     // Entity without children or attributes
     val modelo = Entity(name="modelo")
+
+    // Test Document
+    val doc = Document(child = modelo,  encoding="?xml version=\"1.0\" encoding=\"UTF-8\"?")
 
     // Entities with attributes
     val plastico = Attribute("Material", "Plastico")
@@ -26,9 +26,9 @@ class Tests {
     }
 
     // Document relating to the example given
-    val doc_plano = Document(name="doc_plano")
-
     val plano = Entity(name="plano")
+    val doc_plano = Document(child = plano,  encoding="?xml version=\"1.0\" encoding=\"UTF-8\"?")
+
     val curso1 = Entity(name="curso", text="Mestrado em Engenharia Informática", parent = plano)
     val codigo1 = Attribute(name ="codigo", value ="M4310")
     val fuc1 = Entity(name="fuc", attributes= mutableListOf(codigo1), parent = plano)
@@ -72,7 +72,7 @@ class Tests {
         modelo.add_attribute(reciclado)
         val normal = Attribute("Normal", "1.20€")
         modelo.add_attribute(normal)
-        assertEquals(listOf(reciclado, normal), modelo.attributes)
+        assertEquals(listOf(reciclado, normal), modelo.get_attributes())
     }
 
     // Point 2.
@@ -83,7 +83,7 @@ class Tests {
         val normal = Attribute("Normal", "1.20€")
         modelo.add_attribute(normal)
         modelo.remove_attribute(reciclado)
-        assertEquals(listOf(normal), modelo.attributes)
+        assertEquals(listOf(normal), modelo.get_attributes())
     }
 
     // Point 2.
@@ -101,16 +101,16 @@ class Tests {
             Attribute("Semi-normal", "1.70€")
         )
 
-        assertEquals(expectedAttributes, modelo.attributes)
+        assertEquals(expectedAttributes, modelo.get_attributes())
     }
 
 
     // Entity Tests
     @Test
     fun test_create_entity() {
-        assertEquals("modelo", modelo.name)
+        assertEquals("modelo", modelo.get_name())
         assertEquals("Automático", modelo.get_entity_text())
-        assertEquals(mutableListOf(plastico), garrafa.attributes)
+        assertEquals(mutableListOf(plastico), garrafa.get_attributes())
     }
 
     // Point 3.
@@ -168,7 +168,7 @@ class Tests {
     // Document tests
     @Test
     fun test_create_document(){
-        assertEquals("doc", doc.name)
+        assertEquals("modelo", doc.get_child().get_name())
     }
 
     // Point 1.
@@ -177,7 +177,7 @@ class Tests {
         doc.add_entity_to_document(objeto)
         doc.add_entity_to_document(copo)
         doc.add_entity_to_document(copito)
-        assertEquals(listOf(objeto, copo, copito), doc.entities)
+        assertEquals(listOf(objeto, copo, copito), doc.get_entities())
     }
 
     // Point 1.
@@ -186,8 +186,8 @@ class Tests {
         doc.add_entity_to_document(objeto)
         doc.add_entity_to_document(copo)
         doc.add_entity_to_document(copito)
-        doc.remove_entity_from_document(copito)
-        assertEquals(listOf(objeto, copo), doc.entities)
+        doc.remove_entity(copito)
+        assertEquals(listOf(objeto, copo), doc.get_entities())
     }
 
     // Point 4.
@@ -210,6 +210,7 @@ class Tests {
         doc_plano.add_entity_to_document(componente5)
 
         val expected_output = """
+        <?xml version="1.0" encoding="UTF-8"?>
         <plano>
             <curso>Mestrado em Engenharia Informática</curso>
             <fuc codigo="M4310">
@@ -232,7 +233,7 @@ class Tests {
         </plano>
     """.trimIndent()
 
-        assertEquals(expected_output, doc_plano.pretty_print(doc_plano.entities[0]))
+        assertEquals(expected_output, doc_plano.pretty_print(doc_plano.get_child()))
     }
 
     // Point 4.
@@ -255,6 +256,7 @@ class Tests {
         doc_plano.add_entity_to_document(componente5)
 
         val expected_output = """
+        <?xml version="1.0" encoding="UTF-8"?>
         <plano>
             <curso>Mestrado em Engenharia Informática</curso>
             <fuc codigo="M4310">
@@ -280,7 +282,7 @@ class Tests {
         val filePath = "output.xml"
         val testFile = File(filePath)
 
-        doc_plano.pretty_print_to_file(doc_plano.entities[0], outputFile = testFile)
+        doc_plano.pretty_print_to_file(doc_plano.get_child(), outputFile = testFile)
 
         assert(testFile.exists())
 
@@ -298,7 +300,7 @@ class Tests {
 
         doc.add_global_attribute("garrafa", "Material", "Cartao")
         val expectedAttributes = mutableListOf(Attribute("Material", "Plastico"), Attribute("Material", "Cartao"))
-        assertEquals(expectedAttributes, garrafa.attributes)
+        assertEquals(expectedAttributes, garrafa.get_attributes())
     }
 
     // Points 6 and 5.
@@ -309,15 +311,15 @@ class Tests {
 
         doc.add_global_attribute_vis("garrafa", "Material", "Cortiça")
         val expectedAttributes = mutableListOf(Attribute("Material", "Plastico"), Attribute("Material", "Cortiça"))
-        assertEquals(expectedAttributes, garrafa.attributes)
+        assertEquals(expectedAttributes, garrafa.get_attributes())
     }
 
     // Point 7.
     @Test
     fun test_rename_global_entity(){
         doc.add_entity_to_document(objeto)
-        doc.rename_global_entity("objeto", "objetos")
-        assertEquals("objetos", objeto.name)
+        doc.rename_global_entity("objeto", "objeta")
+        assertEquals("objeta", objeto.get_name())
     }
 
     // Points 7 and 5.
@@ -325,7 +327,7 @@ class Tests {
     fun test_rename_global_entity_vis(){
         doc.add_entity_to_document(objeto)
         doc.rename_global_entity_vis("objeto", "objetos")
-        assertEquals("objetos", objeto.name)
+        assertEquals("objetos", objeto.get_name())
     }
 
     // Point 8.
@@ -333,7 +335,7 @@ class Tests {
     fun test_rename_global_attributes(){
         doc.add_entity_to_document(garrafa)
         doc.rename_global_attributes("garrafa", "Material", "Materia")
-        assertEquals("Materia", garrafa.attributes.get(0).get_attribute_name())
+        assertEquals("Materia", garrafa.get_attributes().get(0).get_attribute_name())
     }
 
     // Points 8 and 5.
@@ -341,7 +343,7 @@ class Tests {
     fun test_rename_global_attributes_vis(){
         doc.add_entity_to_document(garrafa)
         doc.rename_global_attributes_vis("garrafa", "Material", "Materia")
-        assertEquals("Materia", garrafa.attributes.get(0).get_attribute_name())
+        assertEquals("Materia", garrafa.get_attributes().get(0).get_attribute_name())
     }
 
     // Point 9.
@@ -351,7 +353,7 @@ class Tests {
         doc.add_entity_to_document(copo)
         doc.add_entity_to_document(copito)
         doc.remove_global_entities("copito")
-        assertEquals(listOf(objeto, copo), doc.entities)
+        assertEquals(listOf(objeto, copo), doc.get_entities())
     }
 
     // Points 9 and 5.
@@ -361,7 +363,7 @@ class Tests {
         doc.add_entity_to_document(copo)
         doc.add_entity_to_document(copito)
         doc.remove_global_entities_vis("copito")
-        assertEquals(listOf(objeto, copo), doc.entities)
+        assertEquals(listOf(objeto, copo), doc.get_entities())
     }
 
     // Point 10.
@@ -373,8 +375,8 @@ class Tests {
         doc.add_entity_to_document(garrafa)
         doc.add_entity_to_document(garrafa2)
         doc.remove_global_attributes("garrafa", "Material")
-        assertEquals(listOf(escuro), garrafa.attributes)
-        assertEquals(listOf(escuro), garrafa2.attributes)
+        assertEquals(listOf(escuro), garrafa.get_attributes())
+        assertEquals(listOf(escuro), garrafa2.get_attributes())
     }
 
     // Points 10 and 5.
@@ -386,8 +388,8 @@ class Tests {
         doc.add_entity_to_document(garrafa)
         doc.add_entity_to_document(garrafa2)
         doc.remove_global_attributes_vis("garrafa", "Material")
-        assertEquals(listOf(escuro), garrafa.attributes)
-        assertEquals(listOf(escuro), garrafa2.attributes)
+        assertEquals(listOf(escuro), garrafa.get_attributes())
+        assertEquals(listOf(escuro), garrafa2.get_attributes())
     }
 
     // Micro-XPath
