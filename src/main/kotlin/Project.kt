@@ -90,8 +90,7 @@ class Entity(
     private val attributes: MutableList <Attribute> = mutableListOf(),
     private val parent: Entity? = null,
     private val children: MutableList<Entity> = mutableListOf()
-
-    ){
+){
 
     /**
      * Initializes an instance of Entity.
@@ -116,7 +115,7 @@ class Entity(
      * @return A String representation of the entity.
      */
     override fun toString(): String {
-        return "Entity(name='$name')"
+        return "Entity(name='$name' text='$text', attributes='$attributes', parent='$parent')"
     }
 
     /**
@@ -338,6 +337,10 @@ class Document(
     private val encoding: String
 ) {
 
+    init{
+        entities.addAll(child.get_children())
+    }
+
     /**
      * Accepts a visitor function to process this entity and its children.
      *
@@ -347,7 +350,7 @@ class Document(
      */
     fun accept(visitor: (Entity) -> Boolean) {
         entities.forEach {
-                it.accept(visitor)
+            it.accept(visitor)
         }
     }
 
@@ -399,8 +402,12 @@ class Document(
      * @param[entity] The root entity or the entity where the pretty print begins.
      * @return Call another function that deals with the construction of the structure of the xml File.
      */
-    fun pretty_print(entity: Entity): String {
-        return get_entity_xml(entity = entity, pretty_print = true, encoding)
+//    fun pretty_print(entity: Entity): String {
+//        return get_entity_xml(entity = entity, pretty_print = true, encoding)
+//    }
+
+    fun pretty_print(): String {
+        return get_entity_xml(entity = child, pretty_print = true, encoding)
     }
 
     // Point 4.
@@ -411,8 +418,13 @@ class Document(
      * @return Call another function that deals with the construction of the structure of the xml File and
      * write it in the File.
      */
-    fun pretty_print_to_file(entity: Entity, outputFile: File) {
-        val xmlString = pretty_print(entity)
+//    fun pretty_print_to_file(entity: Entity, outputFile: File) {
+//        val xmlString = pretty_print(entity)
+//        outputFile.writeText(xmlString)
+//    }
+
+    fun pretty_print_to_file(outputFile: File) {
+        val xmlString = pretty_print()
         outputFile.writeText(xmlString)
     }
 

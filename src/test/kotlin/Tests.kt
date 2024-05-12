@@ -194,20 +194,20 @@ class Tests {
     @Test
     fun test_pretty_print(){
         doc_plano.add_entity_to_document(plano)
-        doc_plano.add_entity_to_document(curso1)
-        doc_plano.add_entity_to_document(fuc1)
-        doc_plano.add_entity_to_document(nome1)
-        doc_plano.add_entity_to_document(ects1)
-        doc_plano.add_entity_to_document(avaliacao1)
-        doc_plano.add_entity_to_document(componente1)
-        doc_plano.add_entity_to_document(componente2)
-        doc_plano.add_entity_to_document(fuc2)
-        doc_plano.add_entity_to_document(nome2)
-        doc_plano.add_entity_to_document(ects2)
-        doc_plano.add_entity_to_document(avaliacao2)
-        doc_plano.add_entity_to_document(componente3)
-        doc_plano.add_entity_to_document(componente4)
-        doc_plano.add_entity_to_document(componente5)
+//        doc_plano.add_entity_to_document(curso1)
+//        doc_plano.add_entity_to_document(fuc1)
+//        doc_plano.add_entity_to_document(nome1)
+//        doc_plano.add_entity_to_document(ects1)
+//        doc_plano.add_entity_to_document(avaliacao1)
+//        doc_plano.add_entity_to_document(componente1)
+//        doc_plano.add_entity_to_document(componente2)
+//        doc_plano.add_entity_to_document(fuc2)
+//        doc_plano.add_entity_to_document(nome2)
+//        doc_plano.add_entity_to_document(ects2)
+//        doc_plano.add_entity_to_document(avaliacao2)
+//        doc_plano.add_entity_to_document(componente3)
+//        doc_plano.add_entity_to_document(componente4)
+//        doc_plano.add_entity_to_document(componente5)
 
         val expected_output = """
         <?xml version="1.0" encoding="UTF-8"?>
@@ -233,27 +233,29 @@ class Tests {
         </plano>
     """.trimIndent()
 
-        assertEquals(expected_output, doc_plano.pretty_print(doc_plano.get_child()))
+//        assertEquals(expected_output, doc_plano.pretty_print(doc_plano.get_child()))
+        assertEquals(expected_output, doc_plano.pretty_print())
+
     }
 
     // Point 4.
     @Test
     fun test_pretty_print_to_file(){
-        doc_plano.add_entity_to_document(plano)
-        doc_plano.add_entity_to_document(curso1)
-        doc_plano.add_entity_to_document(fuc1)
-        doc_plano.add_entity_to_document(nome1)
-        doc_plano.add_entity_to_document(ects1)
-        doc_plano.add_entity_to_document(avaliacao1)
-        doc_plano.add_entity_to_document(componente1)
-        doc_plano.add_entity_to_document(componente2)
-        doc_plano.add_entity_to_document(fuc2)
-        doc_plano.add_entity_to_document(nome2)
-        doc_plano.add_entity_to_document(ects2)
-        doc_plano.add_entity_to_document(avaliacao2)
-        doc_plano.add_entity_to_document(componente3)
-        doc_plano.add_entity_to_document(componente4)
-        doc_plano.add_entity_to_document(componente5)
+//        doc_plano.add_entity_to_document(plano)
+//        doc_plano.add_entity_to_document(curso1)
+//        doc_plano.add_entity_to_document(fuc1)
+//        doc_plano.add_entity_to_document(nome1)
+//        doc_plano.add_entity_to_document(ects1)
+//        doc_plano.add_entity_to_document(avaliacao1)
+//        doc_plano.add_entity_to_document(componente1)
+//        doc_plano.add_entity_to_document(componente2)
+//        doc_plano.add_entity_to_document(fuc2)
+//        doc_plano.add_entity_to_document(nome2)
+//        doc_plano.add_entity_to_document(ects2)
+//        doc_plano.add_entity_to_document(avaliacao2)
+//        doc_plano.add_entity_to_document(componente3)
+//        doc_plano.add_entity_to_document(componente4)
+//        doc_plano.add_entity_to_document(componente5)
 
         val expected_output = """
         <?xml version="1.0" encoding="UTF-8"?>
@@ -282,7 +284,9 @@ class Tests {
         val filePath = "output.xml"
         val testFile = File(filePath)
 
-        doc_plano.pretty_print_to_file(doc_plano.get_child(), outputFile = testFile)
+//        doc_plano.pretty_print_to_file(doc_plano.get_child(), outputFile = testFile)
+        doc_plano.pretty_print_to_file(outputFile = testFile)
+
 
         assert(testFile.exists())
 
