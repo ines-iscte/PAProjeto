@@ -2,6 +2,7 @@ import kotlin.reflect.*
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
+import kotlin.reflect.full.primaryConstructor
 
 @Target(AnnotationTarget.CLASS,AnnotationTarget.PROPERTY)
 annotation class DbName(val dbName: String)
@@ -9,7 +10,7 @@ annotation class DbName(val dbName: String)
 @Target(AnnotationTarget.CLASS,AnnotationTarget.PROPERTY)
 annotation class Exclude
 
-@Target(AnnotationTarget.CLASS,AnnotationTarget.PROPERTY)
+@Target(AnnotationTarget.PROPERTY)
 annotation class Header
 
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
@@ -21,6 +22,13 @@ annotation class IsAttribute
 @Target(AnnotationTarget.PROPERTY)
 annotation class IsList
 
+@Target(AnnotationTarget.PROPERTY)
+annotation class XmlString(val transformer: KClass<out StringTransformer>)
+
+//@Target(AnnotationTarget.CLASS)
+//annotation class XmlAdapter(val adapt: KClass<out EntityAdapter<*>>)
+
+//@XmlAdapter(FUCAdapter::class)
 @IsEntity
 @DbName("fuc")
 data class FUC(
@@ -32,6 +40,7 @@ data class FUC(
 
     @IsEntity
     @DbName("nome")
+    @XmlString(AddPoint::class)
     val nome: String,
 
     @IsEntity
@@ -55,10 +64,86 @@ data class ComponenteAvaliacao(
     @DbName("nome")
     val nome: String,
 
+    @XmlString(AddPercentage::class)
     @IsAttribute
     @DbName("peso")
     val peso: Int,
 )
+
+interface StringTransformer {
+    fun transform(value: String): String
+}
+
+class AddPercentage : StringTransformer {
+    override fun transform(value: String): String {
+        return "$value%"
+    }
+}
+
+class AddPoint : StringTransformer {
+    override fun transform(value: String): String {
+        return "$value."
+    }
+}
+
+//interface EntityAdapter<T> {
+//    fun adapt(entity: T): T
+//}
+//
+//class FUCAdapter: EntityAdapter<FUC> {
+//    override fun adapt(entity: FUC): FUC {
+//        // Reordenar os atributos conforme desejado
+//        val reorderedAttributes = LinkedHashMap<String, Any?>()
+//
+//        // Define a ordem desejada dos atributos
+//        val attributeOrder = listOf("codigo", "nome", "ects", "observacoes", "avaliacao")
+//
+//        // Adiciona os atributos à entidade reordenada na ordem desejada
+//        attributeOrder.forEach { attributeName ->
+//            val property = entity::class.members.find { it.name == attributeName }
+//            property?.let {
+//                val value = property.call(entity)
+//                reorderedAttributes[attributeName] = value
+//            }
+//        }
+//
+//        // Cria uma nova instância de FUC com os atributos reordenados
+//        return FUC(
+//            codigo = reorderedAttributes["codigo"] as String,
+//            nome = reorderedAttributes["nome"] as String,
+//            ects = reorderedAttributes["ects"] as Double,
+//            observacoes = reorderedAttributes["observacoes"] as String,
+//            avaliacao = reorderedAttributes["avaliacao"] as List<ComponenteAvaliacao>
+//        )
+//    }
+//}
+
+
+//class FUCAdapter1: EntityAdapter<Entity> {
+//    override fun adapt(entity: Entity): Entity {
+//        // Reordenar os atributos conforme desejado
+//        val reorderedAttributes = LinkedHashMap<String, Any?>()
+//
+//        // Define a ordem desejada dos atributos
+//        val attributeOrder = listOf("codigo", "nome", "ects", "observacoes", "avaliacao")
+//
+//        // Adiciona os atributos à entidade reordenada na ordem desejada
+//        attributeOrder.forEach { attributeName ->
+//            val property = entity::class.members.find { it.name == attributeName }
+//            property?.let {
+//                val value = property.call(entity)
+//                reorderedAttributes[attributeName] = value
+//            }
+//        }
+//
+//        // Cria uma nova instância de FUC com os atributos reordenados
+//        val fucEntity = Entity(name = "FUC")
+//        reorderedAttributes.forEach { (attributeName, attributeValue) ->
+//            fucEntity.add_attribute(Attribute(name = attributeName, value = attributeValue?.toString() ?: ""))
+//        }
+//        return fucEntity
+//    }
+//}
 
 fun translate(obj: Any, parentEntity: Entity? = null): Document {
     val clazz: KClass<*> = obj::class
@@ -77,12 +162,12 @@ fun translate(obj: Any, parentEntity: Entity? = null): Document {
                 propertyName = property.findAnnotation<DbName>()?.dbName.toString()
 
             if (!property.hasAnnotation<Exclude>()) {
+                var propertyValue = property.call(obj)
+                if (property.hasAnnotation<XmlString>()) {
+                    propertyValue = transformValue(property, propertyValue)
+                }
                 if (property.hasAnnotation<IsAttribute>()) {
-                    val propertyValue = property.call(obj)
-                    auxEntity.add_attribute(
-                        Attribute(name = propertyName, value = propertyValue.toString()
-                        )
-                    )
+                    auxEntity.add_attribute(Attribute(name = propertyName.toString(), value = propertyValue.toString()))
 
                 } else if (property.hasAnnotation<IsList>()) {
                     val list = property.call(obj) as? List<*>
@@ -94,7 +179,6 @@ fun translate(obj: Any, parentEntity: Entity? = null): Document {
                     }
 
                 } else {
-                    val propertyValue = property.call(obj)
                     if (propertyValue != null || !property.returnType.isMarkedNullable) {
                         val textValue = propertyValue?.toString() ?: ""
                         Entity(name = propertyName, text = textValue, parent = auxEntity)
@@ -103,79 +187,40 @@ fun translate(obj: Any, parentEntity: Entity? = null): Document {
             }
         }
     }
+//    val adapterClass = (obj::class.annotations.find { it is XmlAdapter } as? XmlAdapter)?.adapt
+//    val adaptedEntity = adapterClass?.let { adapter ->
+//        val adaptMethod = adapter.primaryConstructor?.call()
+//        if (adaptMethod is EntityAdapter<*>) {
+//            adaptMethod.adapt(obj)
+//        } else {
+//            obj
+//        }
+//    } ?: obj
+
+
     return doc
 }
 
+fun transformValue(property: KProperty<*>, value: Any?): String {
+    return value?.let {
+        (property.findAnnotation<XmlString>()?.transformer?.primaryConstructor?.call())?.transform(it.toString()) ?: it.toString()
+    } ?: ""
+}
 
-
-//<componente nome="Quizzes" peso="20"/>
-
-
-
-
-//
-//    if (entity.get_children().isEmpty() && entity.get_entity_text().isEmpty()) {
-//        stringBuilder.append("/>")
-//    } else {
-//        stringBuilder.append(">")
-//
-//        if (entity.get_entity_text().isNotEmpty())
-//            stringBuilder.append(entity.get_entity_text())
-//
-//        // In case pretty_print is True, it will get the children structure too
-//        if (pretty_print){
-//            if (entity.get_children().isNotEmpty()) {
-//                stringBuilder.appendLine()
-//                entity.get_children().forEach { child ->
-//                    stringBuilder.append(get_entity_xml(entity=child, pretty_print=true ,indent="$indent    "))
-//                    stringBuilder.appendLine()
-//                }
-//                stringBuilder.append(indent)
-//            }
+//fun adaptEntityWithAdapter(clazz: KClass<*>, obj: Any): Any {
+//    val adapterAnnotation = clazz.annotations.find { it is XmlAdapter } as? XmlAdapter
+//    return adapterAnnotation?.let { adapter ->
+//        val adapterClass = adapter.adapt
+//        val adapterInstance = adapterClass.primaryConstructor?.call()
+//        if (adapterInstance is EntityAdapter<*>) {
+//            adapterInstance.adapt(obj)
+//        } else {
+//            obj
 //        }
-//        if (entity.get_children().isNotEmpty() || entity.get_entity_text().isNotEmpty()) {
-//            stringBuilder.append("</${entity.get_name()}>")
-//        }
-//    }
-//    return stringBuilder.toString()
-
-
-
-
-//fun get_entity_xml(entity: Entity, pretty_print: Boolean = false, encoding: String? = null, indent: String = ""): String{
-//    val stringBuilder = StringBuilder()
+//    } ?: obj
+//}
 //
-//    stringBuilder.append("$indent<${entity.get_name()}")
-//    if (entity.get_attributes().isNotEmpty()) {
-//        entity.get_attributes().forEach { attribute ->
-//            stringBuilder.append(" ${attribute.get_attribute_name()}=\"${attribute.get_attribute_value()}\"")
-//        }
-//    }
-//
-//    if (entity.get_children().isEmpty() && entity.get_entity_text().isEmpty()) {
-//        stringBuilder.append("/>")
-//    } else {
-//        stringBuilder.append(">")
-//
-//        if (entity.get_entity_text().isNotEmpty())
-//            stringBuilder.append(entity.get_entity_text())
-//
-//        // In case pretty_print is True, it will get the children structure too
-//        if (pretty_print){
-//            if (entity.get_children().isNotEmpty()) {
-//                stringBuilder.appendLine()
-//                entity.get_children().forEach { child ->
-//                    stringBuilder.append(get_entity_xml(entity=child, pretty_print=true ,indent="$indent    "))
-//                    stringBuilder.appendLine()
-//                }
-//                stringBuilder.append(indent)
-//            }
-//        }
-//        if (entity.get_children().isNotEmpty() || entity.get_entity_text().isNotEmpty()) {
-//            stringBuilder.append("</${entity.get_name()}>")
-//        }
-//    }
-//    return stringBuilder.toString()
+
 
 
 
