@@ -27,7 +27,6 @@ class Tests {
 
     // Document relating to the example given
     val plano = Entity(name="plano")
-    val doc_plano = Document(child = plano,  encoding="?xml version=\"1.0\" encoding=\"UTF-8\"?")
 
     val curso1 = Entity(name="curso", text="Mestrado em Engenharia Informática", parent = plano)
     val codigo1 = Attribute(name ="codigo", value ="M4310")
@@ -57,6 +56,7 @@ class Tests {
     val componente_nome10 = Attribute(name ="peso", value ="20%")
     val componente5 = Entity(name="componente", attributes= mutableListOf(componente_nome9, componente_nome10), parent=avaliacao2)
 
+    val doc_plano = Document(child = plano,  encoding="?xml version=\"1.0\" encoding=\"UTF-8\"?")
 
     // Attribute tests
     @Test
@@ -194,20 +194,6 @@ class Tests {
     @Test
     fun test_pretty_print(){
         doc_plano.add_entity_to_document(plano)
-//        doc_plano.add_entity_to_document(curso1)
-//        doc_plano.add_entity_to_document(fuc1)
-//        doc_plano.add_entity_to_document(nome1)
-//        doc_plano.add_entity_to_document(ects1)
-//        doc_plano.add_entity_to_document(avaliacao1)
-//        doc_plano.add_entity_to_document(componente1)
-//        doc_plano.add_entity_to_document(componente2)
-//        doc_plano.add_entity_to_document(fuc2)
-//        doc_plano.add_entity_to_document(nome2)
-//        doc_plano.add_entity_to_document(ects2)
-//        doc_plano.add_entity_to_document(avaliacao2)
-//        doc_plano.add_entity_to_document(componente3)
-//        doc_plano.add_entity_to_document(componente4)
-//        doc_plano.add_entity_to_document(componente5)
 
         val expected_output = """
         <?xml version="1.0" encoding="UTF-8"?>
@@ -233,7 +219,6 @@ class Tests {
         </plano>
     """.trimIndent()
 
-//        assertEquals(expected_output, doc_plano.pretty_print(doc_plano.get_child()))
         assertEquals(expected_output, doc_plano.pretty_print())
 
     }
@@ -241,21 +226,6 @@ class Tests {
     // Point 4.
     @Test
     fun test_pretty_print_to_file(){
-//        doc_plano.add_entity_to_document(plano)
-//        doc_plano.add_entity_to_document(curso1)
-//        doc_plano.add_entity_to_document(fuc1)
-//        doc_plano.add_entity_to_document(nome1)
-//        doc_plano.add_entity_to_document(ects1)
-//        doc_plano.add_entity_to_document(avaliacao1)
-//        doc_plano.add_entity_to_document(componente1)
-//        doc_plano.add_entity_to_document(componente2)
-//        doc_plano.add_entity_to_document(fuc2)
-//        doc_plano.add_entity_to_document(nome2)
-//        doc_plano.add_entity_to_document(ects2)
-//        doc_plano.add_entity_to_document(avaliacao2)
-//        doc_plano.add_entity_to_document(componente3)
-//        doc_plano.add_entity_to_document(componente4)
-//        doc_plano.add_entity_to_document(componente5)
 
         val expected_output = """
         <?xml version="1.0" encoding="UTF-8"?>
@@ -284,9 +254,7 @@ class Tests {
         val filePath = "output.xml"
         val testFile = File(filePath)
 
-//        doc_plano.pretty_print_to_file(doc_plano.get_child(), outputFile = testFile)
         doc_plano.pretty_print_to_file(outputFile = testFile)
-
 
         assert(testFile.exists())
 
@@ -398,7 +366,7 @@ class Tests {
 
     // Micro-XPath
     @Test
-    fun test_get_entity_with_x_path(){
+    fun test_get_entity_xml_with_x_path(){
         val expected1=   """
             <componente nome="Quizzes" peso="20%"/>
             <componente nome="Projeto" peso="80%"/>
@@ -408,24 +376,14 @@ class Tests {
 
         val expected2 = "<curso>Mestrado em Engenharia Informática</curso>"
 
-        doc_plano.add_entity_to_document(plano)
-        doc_plano.add_entity_to_document(curso1)
-        doc_plano.add_entity_to_document(fuc1)
-        doc_plano.add_entity_to_document(nome1)
-        doc_plano.add_entity_to_document(ects1)
-        doc_plano.add_entity_to_document(avaliacao1)
-        doc_plano.add_entity_to_document(componente1)
-        doc_plano.add_entity_to_document(componente2)
-        doc_plano.add_entity_to_document(fuc2)
-        doc_plano.add_entity_to_document(nome2)
-        doc_plano.add_entity_to_document(ects2)
-        doc_plano.add_entity_to_document(avaliacao2)
-        doc_plano.add_entity_to_document(componente3)
-        doc_plano.add_entity_to_document(componente4)
-        doc_plano.add_entity_to_document(componente5)
+        assertEquals(expected1, doc_plano.get_entity_xml_with_x_path("fuc/avaliacao/componente"))
+        assertEquals(expected2, doc_plano.get_entity_xml_with_x_path("curso"))
+    }
 
-        assertEquals(expected1, doc_plano.get_entity_with_x_path("fuc/avaliacao/componente"))
-        assertEquals(expected2, doc_plano.get_entity_with_x_path("curso"))
+    @Test
+    fun test_get_entity_with_x_path(){
+        assertEquals(listOf(componente1, componente2, componente3, componente4, componente5), doc_plano.get_entity_with_x_path("fuc/avaliacao/componente"))
+        assertEquals(listOf(curso1), doc_plano.get_entity_with_x_path("curso"))
     }
 
 
@@ -457,23 +415,73 @@ class Tests {
         val expected1 = "<componente nome=\"Quizzes\" peso=\"20%\"/>"
         val expected2 = "<curso>Mestrado em Engenharia Informática</curso>"
 
-        doc_plano.add_entity_to_document(plano)
-        doc_plano.add_entity_to_document(curso1)
-        doc_plano.add_entity_to_document(fuc1)
-        doc_plano.add_entity_to_document(nome1)
-        doc_plano.add_entity_to_document(ects1)
-        doc_plano.add_entity_to_document(avaliacao1)
-        doc_plano.add_entity_to_document(componente1)
-        doc_plano.add_entity_to_document(componente2)
-        doc_plano.add_entity_to_document(fuc2)
-        doc_plano.add_entity_to_document(nome2)
-        doc_plano.add_entity_to_document(ects2)
-        doc_plano.add_entity_to_document(avaliacao2)
-        doc_plano.add_entity_to_document(componente3)
-        doc_plano.add_entity_to_document(componente4)
-        doc_plano.add_entity_to_document(componente5)
-
         assertEquals(expected1, doc_plano.get_entity_xml(componente1))
         assertEquals(expected2, doc_plano.get_entity_xml(curso1))
+    }
+
+    // Tests relating Part 2
+//
+//    @Test
+//    fun test_component_class(){
+//
+//        val c = ComponenteAvaliacao("Quizzes", 20)
+//        val output = "<utf-8>\n" + "<componente nome=\"Quizzes\" peso=\"20\"/>"
+//        assertEquals(output, translate(c, encoding = "utf-8").pretty_print())
+//    }
+//
+//    @Test
+//    fun test_fuc_class(){
+//
+//        val f = FUC("M4310", "Programação Avançada", 6.0, "la la...",
+//            listOf(
+//                ComponenteAvaliacao("Quizzes", 20),
+//                ComponenteAvaliacao("Projeto", 80)
+//            )
+//        )
+//
+//        val output = "<utf-8>\n" +
+//                "<fuc codigo=\"M4310\">\n" +
+//                "    <avaliacao>\n" +
+//                "        <componente nome=\"Quizzes\" peso=\"20\"/>\n" +
+//                "        <componente nome=\"Projeto\" peso=\"80\"/>\n" +
+//                "    </avaliacao>\n" +
+//                "    <ects>6.0</ects>\n" +
+//                "    <nome>Programação Avançada</nome>\n" +
+//                "</fuc>"
+//        assertEquals(output, translate(f, encoding = "utf-8").pretty_print())
+//    }
+
+    @Test
+    fun test_component_class(){
+
+        val c = ComponenteAvaliacao("Quizzes", 20)
+
+        val output = "<utf-8>\n" + "<componente nome=\"Quizzes\" peso=\"20%\"/>"
+
+        assertEquals(output, translate(c, encoding = "utf-8").pretty_print())
+    }
+
+
+    @Test
+    fun test_fuc_class(){
+
+        val f = FUC("M4310", "Programação Avançada", 6.0, "la la...",
+            listOf(
+                ComponenteAvaliacao("Quizzes", 20),
+                ComponenteAvaliacao("Projeto", 80)
+            )
+        )
+
+        val output = "<utf-8>\n" +
+                "<ufc codigo=\"M4310\">\n" +
+                "    <avaliacao>\n" +
+                "        <componente nome=\"Quizzes\" peso=\"20%\"/>\n" +
+                "        <componente nome=\"Projeto\" peso=\"80%\"/>\n" +
+                "    </avaliacao>\n" +
+                "    <ects>6.0</ects>\n" +
+                "    <nome>Programação Avançada.</nome>\n" +
+                "</ufc>"
+
+        assertEquals(output, translate(f, encoding = "utf-8").pretty_print())
     }
 }
