@@ -7,9 +7,6 @@ annotation class ObjectName(val objectName: String)
 @Target(AnnotationTarget.CLASS,AnnotationTarget.PROPERTY)
 annotation class Exclude
 
-@Target(AnnotationTarget.PROPERTY)
-annotation class Header
-
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
 annotation class IsEntity
 
@@ -44,7 +41,6 @@ data class ComponenteAvaliacao(
 @ObjectName("fuc")
 data class FUC(
 
-    @Header
     @IsAttribute
     @ObjectName("codigo")
     val codigo: String,

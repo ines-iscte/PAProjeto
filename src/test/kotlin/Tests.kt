@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 class Tests {
 
     // Entity without children or attributes
-    val modelo = Entity(name="modelo")
+    val modelo = Entity(name ="modelo")
 
     // Test Document
     val doc = Document(child = modelo,  encoding="?xml version=\"1.0\" encoding=\"UTF-8\"?")
@@ -13,48 +13,48 @@ class Tests {
     // Entities with attributes
     val plastico = Attribute("Material", "Plastico")
     val papel = Attribute("Material", "Papel")
-    val garrafa =  Entity(name="garrafa", attributes= mutableListOf(plastico))
-    val garrafa2 =  Entity(name="garrafa", attributes= mutableListOf(papel))
+    val garrafa =  Entity(name ="garrafa", attributes = mutableListOf(plastico))
+    val garrafa2 =  Entity(name ="garrafa", attributes = mutableListOf(papel))
 
     // Entities with children
-    val objeto = Entity(name="objeto")
-    val copo =  Entity(name="copo", attributes= mutableListOf(plastico, papel), parent=objeto)
-    val copito = Entity(name="copito", parent=copo)
+    val objeto = Entity(name ="objeto")
+    val copo =  Entity(name ="copo", attributes = mutableListOf(plastico, papel), parent =objeto)
+    val copito = Entity(name ="copito", parent =copo)
 
     init{
         modelo.change_entity_text("Automático")
     }
 
     // Document relating to the example given
-    val plano = Entity(name="plano")
+    val plano = Entity(name ="plano")
 
-    val curso1 = Entity(name="curso", text="Mestrado em Engenharia Informática", parent = plano)
+    val curso1 = Entity(name ="curso", text ="Mestrado em Engenharia Informática", parent = plano)
     val codigo1 = Attribute(name ="codigo", value ="M4310")
-    val fuc1 = Entity(name="fuc", attributes= mutableListOf(codigo1), parent = plano)
-    val nome1 = Entity(name="nome", text="Programação Avançada", parent=fuc1)
-    val ects1 = Entity(name="ects", text="6.0", parent=fuc1)
-    val avaliacao1 = Entity(name="avaliacao", parent=fuc1)
+    val fuc1 = Entity(name ="fuc", attributes = mutableListOf(codigo1), parent = plano)
+    val nome1 = Entity(name ="nome", text ="Programação Avançada", parent =fuc1)
+    val ects1 = Entity(name ="ects", text ="6.0", parent =fuc1)
+    val avaliacao1 = Entity(name ="avaliacao", parent =fuc1)
     val componente_nome1 = Attribute(name ="nome", value ="Quizzes")
     val componente_nome2 = Attribute(name ="peso", value ="20%")
-    val componente1 = Entity(name="componente", attributes= mutableListOf(componente_nome1, componente_nome2), parent=avaliacao1)
+    val componente1 = Entity(name ="componente", attributes = mutableListOf(componente_nome1, componente_nome2), parent =avaliacao1)
     val componente_nome3 = Attribute(name ="nome", value ="Projeto")
     val componente_nome4 = Attribute(name ="peso", value ="80%")
-    val componente2 = Entity(name="componente", attributes= mutableListOf(componente_nome3, componente_nome4), parent=avaliacao1)
+    val componente2 = Entity(name ="componente", attributes = mutableListOf(componente_nome3, componente_nome4), parent =avaliacao1)
 
     val codigo2 = Attribute(name ="codigo", value ="03782")
-    val fuc2 = Entity(name="fuc", attributes= mutableListOf(codigo2), parent = plano)
-    val nome2 = Entity(name="nome", text="Dissertação", parent=fuc2)
-    val ects2 = Entity(name="ects", text="42.0", parent=fuc2)
-    val avaliacao2 = Entity(name="avaliacao", parent=fuc2)
+    val fuc2 = Entity(name ="fuc", attributes = mutableListOf(codigo2), parent = plano)
+    val nome2 = Entity(name ="nome", text ="Dissertação", parent =fuc2)
+    val ects2 = Entity(name ="ects", text ="42.0", parent =fuc2)
+    val avaliacao2 = Entity(name ="avaliacao", parent =fuc2)
     val componente_nome5 = Attribute(name ="nome", value ="Dissertação")
     val componente_nome6 = Attribute(name ="peso", value ="60%")
-    val componente3 = Entity(name="componente", attributes= mutableListOf(componente_nome5, componente_nome6), parent=avaliacao2)
+    val componente3 = Entity(name ="componente", attributes = mutableListOf(componente_nome5, componente_nome6), parent =avaliacao2)
     val componente_nome7 = Attribute(name ="nome", value ="Apresentação")
     val componente_nome8 = Attribute(name ="peso", value ="20%")
-    val componente4 = Entity(name="componente", attributes= mutableListOf(componente_nome7, componente_nome8), parent=avaliacao2)
+    val componente4 = Entity(name ="componente", attributes = mutableListOf(componente_nome7, componente_nome8), parent =avaliacao2)
     val componente_nome9 = Attribute(name ="nome", value ="Discussão")
     val componente_nome10 = Attribute(name ="peso", value ="20%")
-    val componente5 = Entity(name="componente", attributes= mutableListOf(componente_nome9, componente_nome10), parent=avaliacao2)
+    val componente5 = Entity(name ="componente", attributes = mutableListOf(componente_nome9, componente_nome10), parent =avaliacao2)
 
     val doc_plano = Document(child = plano,  encoding="?xml version=\"1.0\" encoding=\"UTF-8\"?")
 
@@ -193,7 +193,6 @@ class Tests {
     // Point 4.
     @Test
     fun test_pretty_print(){
-        doc_plano.add_entity_to_document(plano)
 
         val expected_output = """
         <?xml version="1.0" encoding="UTF-8"?>
@@ -483,5 +482,29 @@ class Tests {
                 "</ufc>"
 
         assertEquals(output, translate(f, encoding = "utf-8").pretty_print())
+    }
+
+    // Relating Part 3 - Internal DS
+    @Test
+    fun test_dsl_get() {
+        assertEquals(copito, copo.get("copito"))
+    }
+
+    @Test
+    fun test_dsl_build(){
+        val aux = entity("C") {
+            attribute("Att", "1")
+            attribute("Att", "2")
+            entity("D", text = "Entity D") {
+                attribute("Att", "3")
+            }
+        }
+        val result= "C\n" +
+                "Attribute(name='Att', value='1')\n" +
+                "Attribute(name='Att', value='2')\n" +
+                "  D (Text = Entity D)\n" +
+                "  Attribute(name='Att', value='3')\n"
+
+        assertEquals(result, aux.toTree())
     }
 }
