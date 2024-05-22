@@ -38,7 +38,3 @@ fun Entity.toTree(indent: String = ""): String {
     }
     return builder.toString()
 }
-
-// Questão Slack
-// Mais DSL
-// Está bueno??
