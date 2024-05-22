@@ -4,6 +4,8 @@ import kotlin.test.assertEquals
 
 class Tests {
 
+    // Relating Part 1 - XML Modelling
+
     // Entity without children or attributes
     val modelo = Entity(name ="modelo")
 
@@ -418,44 +420,13 @@ class Tests {
         assertEquals(expected2, doc_plano.get_entity_xml(curso1))
     }
 
-    // Tests relating Part 2
-//
-//    @Test
-//    fun test_component_class(){
-//
-//        val c = ComponenteAvaliacao("Quizzes", 20)
-//        val output = "<utf-8>\n" + "<componente nome=\"Quizzes\" peso=\"20\"/>"
-//        assertEquals(output, translate(c, encoding = "utf-8").pretty_print())
-//    }
-//
-//    @Test
-//    fun test_fuc_class(){
-//
-//        val f = FUC("M4310", "Programação Avançada", 6.0, "la la...",
-//            listOf(
-//                ComponenteAvaliacao("Quizzes", 20),
-//                ComponenteAvaliacao("Projeto", 80)
-//            )
-//        )
-//
-//        val output = "<utf-8>\n" +
-//                "<fuc codigo=\"M4310\">\n" +
-//                "    <avaliacao>\n" +
-//                "        <componente nome=\"Quizzes\" peso=\"20\"/>\n" +
-//                "        <componente nome=\"Projeto\" peso=\"80\"/>\n" +
-//                "    </avaliacao>\n" +
-//                "    <ects>6.0</ects>\n" +
-//                "    <nome>Programação Avançada</nome>\n" +
-//                "</fuc>"
-//        assertEquals(output, translate(f, encoding = "utf-8").pretty_print())
-//    }
-
+    // Tests relating Part 2 - Class Mapping
     @Test
     fun test_component_class(){
 
         val c = ComponenteAvaliacao("Quizzes", 20)
 
-        val output = "<utf-8>\n" + "<componente nome=\"Quizzes\" peso=\"20%\"/>"
+        val output = "<utf-8>\n" + "<comp nome=\"Quizzes\" peso=\"20%\"/>"
 
         assertEquals(output, translate(c, encoding = "utf-8").pretty_print())
     }
@@ -472,19 +443,19 @@ class Tests {
         )
 
         val output = "<utf-8>\n" +
-                "<ufc codigo=\"M4310\">\n" +
+                "<fuc codigo=\"M4310\" Modo=\"Presencial\">\n" +
                 "    <avaliacao>\n" +
-                "        <componente nome=\"Quizzes\" peso=\"20%\"/>\n" +
-                "        <componente nome=\"Projeto\" peso=\"80%\"/>\n" +
+                "        <comp nome=\"Quizzes\" peso=\"20%\"/>\n" +
+                "        <comp nome=\"Projeto\" peso=\"80%\"/>\n" +
                 "    </avaliacao>\n" +
                 "    <ects>6.0</ects>\n" +
                 "    <nome>Programação Avançada.</nome>\n" +
-                "</ufc>"
+                "</fuc>"
 
         assertEquals(output, translate(f, encoding = "utf-8").pretty_print())
     }
 
-    // Relating Part 3 - Internal DS
+    // Relating Part 3 - Internal DSL
     @Test
     fun test_dsl_get() {
         assertEquals(copito, copo.get("copito"))

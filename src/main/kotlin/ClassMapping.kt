@@ -23,6 +23,7 @@ annotation class XmlString(val transformer: KClass<out StringTransformer>)
 annotation class XmlAdapter(val adapter: KClass<out EntityAdapter>)
 
 @IsEntity
+@XmlAdapter(ChangeNameAdapter::class)
 @ObjectName("componente")
 data class ComponenteAvaliacao(
 
@@ -83,9 +84,15 @@ interface EntityAdapter {
     fun adapt(entity: Entity)
 }
 
+class ChangeNameAdapter : EntityAdapter {
+    override fun adapt(entity: Entity) {
+        entity.set_name("comp")
+    }
+}
+
 class FUCAdapter : EntityAdapter {
     override fun adapt(entity: Entity) {
-        entity.set_name("ufc")
+        entity.add_attribute(Attribute("Modo", "Presencial"))
     }
 }
 
