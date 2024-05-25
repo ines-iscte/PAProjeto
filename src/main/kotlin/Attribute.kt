@@ -15,7 +15,7 @@ class Attribute(
     /**
      * Initializes an instance of Attribute.
      *
-     * If the name given has more than one word, the attribute is not created
+     * If the name given has more than one word, the attribute is not created.
      * @param[name] The name given to the attribute
      */
     init {
@@ -32,19 +32,19 @@ class Attribute(
         return "Attribute(name='$name', value='$value')"
     }
 
-    fun get_attribute_name(): String? {
+    fun getAttributeName(): String? {
         return name
     }
 
-    fun get_attribute_value(): String? {
+    fun getAttributeValue(): String? {
         return value
     }
 
-    fun set_attribute_name(name: String) {
+    fun setAttributeName(name: String) {
         this.name = name
     }
 
-    fun set_attribute_value(value: String) {
+    fun setAttributeValue(value: String) {
         this.value = value
     }
 

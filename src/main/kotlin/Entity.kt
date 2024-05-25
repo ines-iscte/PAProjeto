@@ -33,7 +33,7 @@ class Entity(
         require(name.split(" ").size == 1) {
             "Name of entity must contain only one word"
         }
-        if (parent?.get_entity_text()?.isNotBlank() == true)
+        if (parent?.getEntityText()?.isNotBlank() == true)
             throw IllegalStateException("Parent entity already has text and cannot have children.")
         parent?.children?.add(this)
     }
@@ -59,16 +59,16 @@ class Entity(
         visitor(this)
     }
 
-    fun get_name(): String {
+    fun getName(): String {
         return name
     }
 
-    fun set_name(name: String){
+    fun setName(name: String){
         this.name=name
     }
 
-    private fun equal_attribute(name: String?, value: String?): Attribute? {
-        return attributes.find { it.get_attribute_name().equals(name) && it.get_attribute_value().equals(value) }
+    private fun equalAttribute(name: String?, value: String?): Attribute? {
+        return attributes.find { it.getAttributeName().equals(name) && it.getAttributeValue().equals(value) }
     }
 
     // Relating Attributes
@@ -78,8 +78,8 @@ class Entity(
      * Adds a given [attribute] to the list of attributes of the entity.
      * @param[attribute] The attribute to be added to the entity.
      */
-    fun add_attribute(attribute: Attribute){
-        if (equal_attribute(attribute.get_attribute_name(), attribute.get_attribute_value()) != null) {
+    fun addAttribute(attribute: Attribute){
+        if (equalAttribute(attribute.getAttributeName(), attribute.getAttributeValue()) != null) {
             throw IllegalStateException("Entity already has this attribute.")
         } else {
             this.attributes.add(attribute)
@@ -91,7 +91,7 @@ class Entity(
      * Removes a given [attribute] from the list of attributes of the entity.
      * @param[attribute] The attribute to be removed from the entity.
      */
-    fun remove_attribute(attribute: Attribute){
+    fun removeAttribute(attribute: Attribute){
         attributes.removeIf { it == attribute }
     }
 
@@ -104,7 +104,7 @@ class Entity(
      * @param[new_name] The name of the attribute to replace the current name. By default, it's null, if there is no change.
      * @param[new_value] The value of the attribute to replace the current value. By default, it's null, if there is no change.
      */
-    fun change_attribute(attribute: Attribute, new_name: String? = null, new_value: String? = null) {
+    fun changeAttribute(attribute: Attribute, new_name: String? = null, new_value: String? = null) {
 //        attributes.forEach {
 //            if (it == attribute) {
 //                if (new_name != null) {
@@ -138,17 +138,17 @@ class Entity(
                 var aux_value = new_value
 
                 if (new_name == null)
-                    aux_name = it.get_attribute_name()
+                    aux_name = it.getAttributeName()
                 if (new_value == null)
-                    aux_value = it.get_attribute_value()
+                    aux_value = it.getAttributeValue()
 
-                if (equal_attribute(aux_name, aux_value) != null) {
+                if (equalAttribute(aux_name, aux_value) != null) {
                     throw IllegalStateException("Entity already has this attribute.")
                 } else {
                     if (new_name != null)
-                        it.set_attribute_name(new_name)
+                        it.setAttributeName(new_name)
                     if (new_value != null)
-                        it.set_attribute_value(new_value)
+                        it.setAttributeValue(new_value)
                 }
             }
         }
@@ -158,7 +158,7 @@ class Entity(
      * Getter of the list of attributes of the entity.
      * @return List of attributes of the entity.
      */
-    fun get_attributes(): MutableList<Attribute>{
+    fun getAttributes(): MutableList<Attribute>{
         return this.attributes
     }
 
@@ -167,7 +167,7 @@ class Entity(
      * Getter of the text that belongs to the entity.
      * @return Text related to the entity.
      */
-    fun get_entity_text(): String{
+    fun getEntityText(): String{
         return this.text
     }
 
@@ -176,7 +176,7 @@ class Entity(
      * Updates the current text with the given [new_text].
      * @param[new_text] The text to replace the current text of the entity.
      */
-    fun change_entity_text(new_text: String){
+    fun changeEntityText(new_text: String){
         if (children.isNotEmpty()) {
             throw IllegalStateException("Entity already has children and cannot have text.")
         }
@@ -188,7 +188,7 @@ class Entity(
      * Clears the current text of the entity, sets it to an empty String ("").
      *
      */
-    fun remove_entity_text(){
+    fun removeEntityText(){
         text=""
     }
 
@@ -200,7 +200,7 @@ class Entity(
      * If the parent doesn't exist, the entity is the root and will return null.
      * @return The parent of the entity. If there is no parent, it returns null.
      */
-    fun get_parent(): Entity?{
+    fun getParent(): Entity?{
         return this.parent
     }
 
@@ -214,11 +214,11 @@ class Entity(
      * @return List of all the descendant entities of the entity.
      */
     // Counting the children of the children
-    fun get_all_children() : List<Entity> {
+    fun getAllChildren() : List<Entity> {
         val list: MutableList<Entity> = mutableListOf()
         this.children.forEach {
             list.add(it)
-            list.addAll(it.get_all_children())
+            list.addAll(it.getAllChildren())
         }
         return list
     }
@@ -229,7 +229,7 @@ class Entity(
      * @return List of children of the entity.
      */
     // Not counting the children of the children
-    fun get_children() : List<Entity> {
+    fun getChildren() : List<Entity> {
         return this.children
     }
 
@@ -242,13 +242,13 @@ class Entity(
      *
      * @return List with the parent of the entity and its children.
      */
-    fun get_parent_and_children(): List<Entity>{
+    fun getParentAndChildren(): List<Entity>{
 
         val list = mutableListOf<Entity>()
-        this.get_parent()?.let { parent ->
+        this.getParent()?.let { parent ->
             list.add(parent)
         }
-        list.addAll(this.get_children())
+        list.addAll(this.getChildren())
 
         return list
     }
