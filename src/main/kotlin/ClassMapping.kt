@@ -86,13 +86,13 @@ interface EntityAdapter {
 
 class ChangeNameAdapter : EntityAdapter {
     override fun adapt(entity: Entity) {
-        entity.set_name("comp")
+        entity.setName("comp")
     }
 }
 
 class FUCAdapter : EntityAdapter {
     override fun adapt(entity: Entity) {
-        entity.add_attribute(Attribute("Modo", "Presencial"))
+        entity.addAttribute(Attribute("Modo", "Presencial"))
     }
 }
 
@@ -117,7 +117,7 @@ fun translate(obj: Any, parentEntity: Entity? = null, encoding: String = ""): Do
                     propertyValue = transformString(property, propertyValue.toString())
                 }
                 if (property.hasAnnotation<IsAttribute>()) {
-                    auxEntity.add_attribute(Attribute(name = propertyName, value = propertyValue.toString()))
+                    auxEntity.addAttribute(Attribute(name = propertyName, value = propertyValue.toString()))
 
                 } else if (property.hasAnnotation<IsList>()) {
                     val list = property.call(obj) as? List<*>

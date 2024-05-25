@@ -6,8 +6,11 @@
 import java.io.File
 
 /**
- * Class that represents a document with a name and a list of entities.
+ * Class that represents a document with its child, the list of its entities and an encoding.
+ * @property[child] The entity that belongs to the document.
  * @property[entities] List of entities contained in the document.
+ * @property[encoding] The String that goes on the top of the XML File - document.
+ *
  */
 class Document(
     private var child: Entity,
@@ -16,7 +19,7 @@ class Document(
 ) {
 
     init{
-        entities.addAll(child.get_children())
+        entities.addAll(child.getChildren())
     }
 
     /**
@@ -32,21 +35,21 @@ class Document(
         }
     }
 
-    fun get_child(): Entity {
+    fun getChild(): Entity {
         return child
     }
 
-    fun get_entities(): List<Entity> {
+    fun getEntities(): List<Entity> {
         return entities
     }
 
-    internal fun attribute_exists(entity: Entity, attribute: Attribute): Attribute? {
-        return entity.get_attributes().find { it.get_attribute_name() == attribute.get_attribute_name() && it.get_attribute_value() == attribute.get_attribute_value() }
+    internal fun attributeExists(entity: Entity, attribute: Attribute): Attribute? {
+        return entity.getAttributes().find { it.getAttributeName() == attribute.getAttributeName() && it.getAttributeValue() == attribute.getAttributeValue() }
     }
 
-    internal fun entity_exists(name: String, text: String, attributes: MutableList<Attribute>, parent: Entity?, children: List<Entity>): Entity? {
-        return get_entities().find { it.get_name() == name && it.get_entity_text() == text && it.get_attributes() == attributes
-                && it.get_parent() == parent && it.get_children() == children}
+    internal fun entityExists(name: String, text: String, attributes: MutableList<Attribute>, parent: Entity?, children: List<Entity>): Entity? {
+        return getEntities().find { it.getName() == name && it.getEntityText() == text && it.getAttributes() == attributes
+                && it.getParent() == parent && it.getChildren() == children}
     }
 
     // Point 1.
@@ -55,8 +58,8 @@ class Document(
      * Adds to the list of entities the [entity].
      * @param[entity] The entity to be added to the document.
      */
-    fun add_entity_to_document(entity: Entity) {
-        if (entity_exists(entity.get_name(), entity.get_entity_text(), entity.get_attributes(), entity.get_parent(), entity.get_children()) != null) {
+    fun addEntity(entity: Entity) {
+        if (entityExists(entity.getName(), entity.getEntityText(), entity.getAttributes(), entity.getParent(), entity.getChildren()) != null) {
             throw IllegalStateException("Document already has this entity.")
         } else {
             entities.add(entity)
@@ -70,7 +73,7 @@ class Document(
      * It goes to the list of entities of the document and removes the one given as [entity].
      * @param[entity] The entity to be removed from the document.
      */
-    fun remove_entity(entity: Entity) {
+    fun removeEntity(entity: Entity) {
         entities.removeIf { it == entity }
     }
 
@@ -83,8 +86,8 @@ class Document(
 //        return get_entity_xml(entity = entity, pretty_print = true, encoding)
 //    }
 
-    fun pretty_print(): String {
-        return get_entity_xml(entity = child, pretty_print = true, encoding)
+    fun prettyPrint(): String {
+        return getEntityXml(entity = child, pretty_print = true, encoding)
     }
 
     // Point 4.
@@ -99,8 +102,8 @@ class Document(
 //        outputFile.writeText(xmlString)
 //    }
 
-    fun pretty_print_to_file(outputFile: File) {
-        val xmlString = pretty_print()
+    fun prettyPrintToFile(outputFile: File) {
+        val xmlString = prettyPrint()
         outputFile.writeText(xmlString)
     }
 
@@ -116,7 +119,7 @@ class Document(
      * @param[attribute_name] Name of the attribute to be added.
      * @param[attribute_value] Value of the attribute to be added.
      */
-    fun add_global_attribute(entity_name: String, attribute_name: String, attribute_value: String) {
+    fun addGlobalAttribute(entity_name: String, attribute_name: String, attribute_value: String) {
 //        val attribute = Attribute(attribute_name, attribute_value)
 //
 //        this.entities.filter { it.name == entity_name }
@@ -136,12 +139,12 @@ class Document(
 
         val att = Attribute(attribute_name, attribute_value)
 
-        this.entities.filter { it.get_name() == entity_name }
+        this.entities.filter { it.getName() == entity_name }
             .forEach {
-                if (attribute_exists(it, att) != null) {
+                if (attributeExists(it, att) != null) {
                     throw IllegalStateException("Entity already has this attribute.")
                 } else {
-                    it.add_attribute(att)
+                    it.addAttribute(att)
                 }
 
             }
@@ -157,17 +160,17 @@ class Document(
      * @param[old_name] Current name of the entities - to be renamed.
      * @param[new_name] Future name of the entities - to replace the current.
      */
-    fun rename_global_entity(old_name: String, new_name:String){
+    fun renameGlobalEntity(old_name: String, new_name:String){
         require(new_name.split(" ").size == 1) {
                 "New name must contain only one word"
         }
 
-        this.entities.filter { old_name == it.get_name() }
+        this.entities.filter { old_name == it.getName() }
             .forEach { entity ->
-                if (entity_exists(new_name, entity.get_entity_text(), entity.get_attributes(), entity.get_parent(), entity.get_children()) != null) {
+                if (entityExists(new_name, entity.getEntityText(), entity.getAttributes(), entity.getParent(), entity.getChildren()) != null) {
                     throw IllegalStateException("Document already has this entity.")
                 } else {
-                    entity.set_name(new_name)
+                    entity.setName(new_name)
                 }
             }
     }
@@ -185,15 +188,15 @@ class Document(
      * @param[old_attribute_name] Current name of the attribute - to be renamed.
      * @param[new_attribute_name] Future name of the attribute - to replace the current.
      */
-    fun rename_global_attributes(entity_name: String, old_attribute_name: String, new_attribute_name: String){
+    fun renameGlobalAttributes(entity_name: String, old_attribute_name: String, new_attribute_name: String){
         require(new_attribute_name.split(" ").size == 1) {
                 "New name must contain only one word"
         }
         entities.forEach{ entity ->
-            if (entity_name == entity.get_name()) {
-                entity.get_attributes().forEach{
-                    if (it.get_attribute_name() == old_attribute_name)
-                        entity.change_attribute(attribute = it, new_name = new_attribute_name)
+            if (entity_name == entity.getName()) {
+                entity.getAttributes().forEach{
+                    if (it.getAttributeName() == old_attribute_name)
+                        entity.changeAttribute(attribute = it, new_name = new_attribute_name)
                 }
 //                it.attributes.forEach{
 //                    if (it.get_attribute_name()==old_attribute_name)
@@ -214,10 +217,10 @@ class Document(
      *
      * @param[entity_name] Name of the entity to be removed.
      */
-    fun remove_global_entities(entity_name: String){
+    fun removeGlobalEntities(entity_name: String){
         val list: MutableList <Entity> = mutableListOf()
 
-        this.entities.filter { it.get_name() == entity_name }
+        this.entities.filter { it.getName() == entity_name }
             .forEach {
                 list.add(it)
             }
@@ -234,11 +237,11 @@ class Document(
      * @param[entity_name] Name of the entities which contain the attributes.
      * @param[attribute_name] Name of the attributes to be removed.
      */
-    fun remove_global_attributes(entity_name: String, attribute_name: String) {
+    fun removeGlobalAttributes(entity_name: String, attribute_name: String) {
         entities.forEach { entity ->
-            if (entity_name == entity.get_name()) {
-                val attributes_to_remove = entity.get_attributes().filter { it.get_attribute_name() == attribute_name }
-                entity.get_attributes().removeAll(attributes_to_remove)
+            if (entity_name == entity.getName()) {
+                val attributes_to_remove = entity.getAttributes().filter { it.getAttributeName() == attribute_name }
+                entity.getAttributes().removeAll(attributes_to_remove)
             }
         }
     }
@@ -254,7 +257,7 @@ class Document(
      * @param[pretty_print] Defines if it's a String or a pretty print structure.
      * @return Structure of the resulting pretty print.
      */
-    fun get_entity_xml(entity: Entity, pretty_print: Boolean = false, encoding: String? = null, indent: String = ""): String{
+    fun getEntityXml(entity: Entity, pretty_print: Boolean = false, encoding: String? = null, indent: String = ""): String{
         val stringBuilder = StringBuilder()
 
         if(encoding != null) {
@@ -262,34 +265,34 @@ class Document(
             stringBuilder.appendLine()
         }
 
-        stringBuilder.append("$indent<${entity.get_name()}")
-        if (entity.get_attributes().isNotEmpty()) {
-            entity.get_attributes().forEach { attribute ->
-                stringBuilder.append(" ${attribute.get_attribute_name()}=\"${attribute.get_attribute_value()}\"")
+        stringBuilder.append("$indent<${entity.getName()}")
+        if (entity.getAttributes().isNotEmpty()) {
+            entity.getAttributes().forEach { attribute ->
+                stringBuilder.append(" ${attribute.getAttributeName()}=\"${attribute.getAttributeValue()}\"")
             }
         }
 
-        if (entity.get_children().isEmpty() && entity.get_entity_text().isEmpty()) {
+        if (entity.getChildren().isEmpty() && entity.getEntityText().isEmpty()) {
             stringBuilder.append("/>")
         } else {
             stringBuilder.append(">")
 
-            if (entity.get_entity_text().isNotEmpty())
-                stringBuilder.append(entity.get_entity_text())
+            if (entity.getEntityText().isNotEmpty())
+                stringBuilder.append(entity.getEntityText())
 
             // In case pretty_print is True, it will get the children structure too
             if (pretty_print){
-                if (entity.get_children().isNotEmpty()) {
+                if (entity.getChildren().isNotEmpty()) {
                     stringBuilder.appendLine()
-                    entity.get_children().forEach { child ->
-                        stringBuilder.append(get_entity_xml(entity=child, pretty_print=true ,indent="$indent    "))
+                    entity.getChildren().forEach { child ->
+                        stringBuilder.append(getEntityXml(entity=child, pretty_print=true ,indent="$indent    "))
                         stringBuilder.appendLine()
                     }
                     stringBuilder.append(indent)
                 }
             }
-            if (entity.get_children().isNotEmpty() || entity.get_entity_text().isNotEmpty()) {
-                stringBuilder.append("</${entity.get_name()}>")
+            if (entity.getChildren().isNotEmpty() || entity.getEntityText().isNotEmpty()) {
+                stringBuilder.append("</${entity.getName()}>")
             }
         }
         return stringBuilder.toString()
@@ -313,20 +316,20 @@ class Document(
      * @param[entities_to_explore] Document's list of entities.
      * @return List of the found entities.
      */
-    private fun aux_get_entity_with_x_path(x_path: String, entities_to_explore: List<Entity>): List<Entity> {
+    private fun auxGetEntityWithXPath(x_path: String, entities_to_explore: List<Entity>): List<Entity> {
     val foundEntities = mutableListOf<Entity>()
 
     val parts = x_path.split("/")
     val first_entity = parts.first()
     val other_entities = parts.drop(1).joinToString("/")
 
-    val matchingEntities = entities_to_explore.filter { it.get_name() == first_entity }
+    val matchingEntities = entities_to_explore.filter { it.getName() == first_entity }
 
     matchingEntities.forEach { entity ->
         if (other_entities.isEmpty()) {
             foundEntities.add(entity)
         } else {
-            val childEntities = aux_get_entity_with_x_path(other_entities, entity.get_children())
+            val childEntities = auxGetEntityWithXPath(other_entities, entity.getChildren())
             foundEntities.addAll(childEntities)
         }
     }
@@ -342,13 +345,13 @@ class Document(
      * @param[x_path] Micro-XPath with the possible path of entities.
      * @return String with the final path of the found entities.
      */
-    fun get_entity_xml_with_x_path(x_path: String): String {
+    fun getEntityXmlWithXPath(x_path: String): String {
         val stringBuilder = StringBuilder()
-        val returned_entities = aux_get_entity_with_x_path(x_path, entities)
+        val returned_entities = auxGetEntityWithXPath(x_path, entities)
 
         if (returned_entities.isNotEmpty()) {
             returned_entities.forEachIndexed { index, entity ->
-                stringBuilder.append(get_entity_xml(entity))
+                stringBuilder.append(getEntityXml(entity))
                 if (index != returned_entities.size - 1)
                     stringBuilder.append("\n")
             }
@@ -356,8 +359,8 @@ class Document(
         return stringBuilder.toString()
     }
 
-    fun get_entity_with_x_path(x_path: String): List<Entity> {
-        val returned_entities = aux_get_entity_with_x_path(x_path, entities)
+    fun getEntityWithXPath(x_path: String): List<Entity> {
+        val returned_entities = auxGetEntityWithXPath(x_path, entities)
         return returned_entities
     }
 }
