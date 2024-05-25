@@ -17,11 +17,11 @@
  * @param[child_entity] The child entity for which to find the parent.
  * @return The parent entity of the [child_entity]. If not found, returns null.
  */
-fun Document.get_parent_vis(child_entity: Entity): Entity?{
+fun Document.getParentVis(child_entity: Entity): Entity?{
     var result: Entity? = null
 
     this.accept { entity ->
-        if (entity == child_entity.get_parent()) {
+        if (entity == child_entity.getParent()) {
             result = entity
         }
         true
@@ -39,11 +39,11 @@ fun Document.get_parent_vis(child_entity: Entity): Entity?{
  * @param[parent_entity] The parent entity for which to find its children.
  * @return The list of children of the [parent_entity].
  */
-fun Document.get_children_vis(parent_entity: Entity) : List<Entity> {
+fun Document.getChildrenVis(parent_entity: Entity) : List<Entity> {
     val list = mutableListOf<Entity>()
 
     this.accept { entity ->
-        if (entity.get_parent() == parent_entity){
+        if (entity.getParent() == parent_entity){
             list.add(entity)
         }
         true
@@ -61,11 +61,11 @@ fun Document.get_children_vis(parent_entity: Entity) : List<Entity> {
  * @param[main_entity] The entity for which to find its parent and children.
  * @return List with the parent and children of the entity given.
  */
-fun Document.get_parent_and_children_vis(main_entity: Entity): List<Entity>{
+fun Document.getParentAndChildrenVis(main_entity: Entity): List<Entity>{
     val list = mutableListOf<Entity>()
 
     this.accept { entity ->
-        if (entity in main_entity.get_children() || entity == main_entity.get_parent()) {
+        if (entity in main_entity.getChildren() || entity == main_entity.getParent()) {
             list.add(entity)
         }
         true
@@ -88,15 +88,15 @@ fun Document.get_parent_and_children_vis(main_entity: Entity): List<Entity>{
  * @param[attribute_name] Name of the attribute to be added.
  * @param[attribute_value] Value of the attribute ti be added.
  */
-fun Document.add_global_attribute_vis(entity_name: String, attribute_name: String, attribute_value: String) {
+fun Document.addGlobalAttributeVis(entity_name: String, attribute_name: String, attribute_value: String) {
     val att = Attribute(attribute_name, attribute_value)
 
     this.accept {
-        if (entity_name == it.get_name()) {
-            if (attribute_exists(it, att) != null) {
+        if (entity_name == it.getName()) {
+            if (attributeExists(it, att) != null) {
                 throw IllegalStateException("Entity already has this attribute.")
             } else {
-                it.add_attribute(att)
+                it.addAttribute(att)
             }
         }
         true
@@ -113,16 +113,16 @@ fun Document.add_global_attribute_vis(entity_name: String, attribute_name: Strin
  * @param[old_name] Current name of the entities - to be renamed.
  * @param[new_name] Future name of the entities - to replace the current.
  */
-fun Document.rename_global_entity_vis(old_name: String, new_name:String){
+fun Document.renameGlobalEntityVis(old_name: String, new_name:String){
     require(new_name.split(" ").size == 1) {
         "New name must contain only one word"
     }
     this.accept { entity ->
-        if (old_name == entity.get_name()) {
-            if (entity_exists(new_name, entity.get_entity_text(), entity.get_attributes(), entity.get_parent(), entity.get_children()) != null) {
+        if (old_name == entity.getName()) {
+            if (entityExists(new_name, entity.getEntityText(), entity.getAttributes(), entity.getParent(), entity.getChildren()) != null) {
                 throw IllegalStateException("Document already has this entity.")
             } else {
-                entity.set_name(new_name)
+                entity.setName(new_name)
             }
         }
         true
@@ -141,16 +141,16 @@ fun Document.rename_global_entity_vis(old_name: String, new_name:String){
  * @param[old_attribute_name] Current name of the attributes - to be renamed.
  * @param[new_attribute_name] Future name of the attributes - to replace the current.
  */
-fun Document.rename_global_attributes_vis(entity_name: String, old_attribute_name: String, new_attribute_name: String){
+fun Document.renameGlobalAttributesVis(entity_name: String, old_attribute_name: String, new_attribute_name: String){
     require(new_attribute_name.split(" ").size == 1) {
         "New name must contain only one word"
     }
 
     this.accept { entity ->
-        if (entity_name == entity.get_name()) {
-            entity.get_attributes().forEach{
-                if (it.get_attribute_name() == old_attribute_name)
-                    entity.change_attribute(attribute = it, new_name = new_attribute_name)
+        if (entity_name == entity.getName()) {
+            entity.getAttributes().forEach{
+                if (it.getAttributeName() == old_attribute_name)
+                    entity.changeAttribute(attribute = it, new_name = new_attribute_name)
             }
         }
         true
@@ -166,16 +166,16 @@ fun Document.rename_global_attributes_vis(entity_name: String, old_attribute_nam
  *
  * @param[entity_name] Name of the entities to be removed.
  */
-fun Document.remove_global_entities_vis(entity_name: String) {
+fun Document.removeGlobalEntitiesVis(entity_name: String) {
     val list = mutableListOf<Entity>()
 
     this.accept { entity ->
-        if (entity.get_name() == entity_name) {
+        if (entity.getName() == entity_name) {
             list.add(entity)
         }
         true
     }
-    list.forEach { remove_entity(it) }
+    list.forEach { removeEntity(it) }
 }
 
 // Point 10.
@@ -189,12 +189,12 @@ fun Document.remove_global_entities_vis(entity_name: String) {
  * @param[entity_name] Name of the entities which contain the attributes.
  * @param[attribute_name] Name of the attributes to be removed.
  */
-fun Document.remove_global_attributes_vis(entity_name: String, attribute_name: String) {
+fun Document.removeGlobalAttributesVis(entity_name: String, attribute_name: String) {
     this.accept { entity ->
-        if (entity_name == entity.get_name()) {
-            val attributesToRemove = entity.get_attributes().filter { it.get_attribute_name() == attribute_name }
+        if (entity_name == entity.getName()) {
+            val attributesToRemove = entity.getAttributes().filter { it.getAttributeName() == attribute_name }
             attributesToRemove.forEach { attribute ->
-                entity.get_attributes().remove(attribute)
+                entity.getAttributes().remove(attribute)
             }
         }
         true

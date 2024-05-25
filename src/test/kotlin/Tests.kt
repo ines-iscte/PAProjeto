@@ -24,7 +24,7 @@ class Tests {
     val copito = Entity(name ="copito", parent =copo)
 
     init{
-        modelo.change_entity_text("Automático")
+        modelo.changeEntityText("Automático")
     }
 
     // Document relating to the example given
@@ -63,138 +63,138 @@ class Tests {
     // Attribute tests
     @Test
     fun test_create_attribute(){
-        assertEquals("Material", plastico.get_attribute_name())
-        assertEquals("Papel", papel.get_attribute_value())
+        assertEquals("Material", plastico.getAttributeName())
+        assertEquals("Papel", papel.getAttributeValue())
     }
 
     // Point 2.
     @Test
-    fun test_add_attribute_to_entity(){
+    fun testAddAttributeToEntity(){
         val reciclado = Attribute("Reciclado", "1.40€")
-        modelo.add_attribute(reciclado)
+        modelo.addAttribute(reciclado)
         val normal = Attribute("Normal", "1.20€")
-        modelo.add_attribute(normal)
-        assertEquals(listOf(reciclado, normal), modelo.get_attributes())
+        modelo.addAttribute(normal)
+        assertEquals(listOf(reciclado, normal), modelo.getAttributes())
     }
 
     // Point 2.
     @Test
-    fun test_remove_attribute_to_entity(){
+    fun testRemoveAttributeToEntity(){
         val reciclado = Attribute("Reciclado", "1.40€")
-        modelo.add_attribute(reciclado)
+        modelo.addAttribute(reciclado)
         val normal = Attribute("Normal", "1.20€")
-        modelo.add_attribute(normal)
-        modelo.remove_attribute(reciclado)
-        assertEquals(listOf(normal), modelo.get_attributes())
+        modelo.addAttribute(normal)
+        modelo.removeAttribute(reciclado)
+        assertEquals(listOf(normal), modelo.getAttributes())
     }
 
     // Point 2.
     @Test
-    fun test_change_attribute_to_entity(){
+    fun testChangeAttributeToEntity(){
         val reciclado = Attribute("Reciclado", "1.40€")
-        modelo.add_attribute(reciclado)
+        modelo.addAttribute(reciclado)
         val normal = Attribute("Normal", "1.20€")
-        modelo.add_attribute(normal)
-        modelo.change_attribute(attribute=reciclado, new_value="1.50€")
-        modelo.change_attribute(attribute=normal, new_name="Semi-normal", new_value="1.70€")
+        modelo.addAttribute(normal)
+        modelo.changeAttribute(attribute=reciclado, new_value="1.50€")
+        modelo.changeAttribute(attribute=normal, new_name="Semi-normal", new_value="1.70€")
 
         val expectedAttributes = listOf(
             Attribute("Reciclado", "1.50€"),
             Attribute("Semi-normal", "1.70€")
         )
 
-        assertEquals(expectedAttributes, modelo.get_attributes())
+        assertEquals(expectedAttributes, modelo.getAttributes())
     }
 
 
     // Entity Tests
     @Test
-    fun test_create_entity() {
-        assertEquals("modelo", modelo.get_name())
-        assertEquals("Automático", modelo.get_entity_text())
-        assertEquals(mutableListOf(plastico), garrafa.get_attributes())
+    fun testCreateEntity() {
+        assertEquals("modelo", modelo.getName())
+        assertEquals("Automático", modelo.getEntityText())
+        assertEquals(mutableListOf(plastico), garrafa.getAttributes())
     }
 
     // Point 3.
     @Test
-    fun test_all_children_list_of_entity(){
-        assertEquals(listOf(copo, copito), objeto.get_all_children())
+    fun testAllChildrenListOfEntity(){
+        assertEquals(listOf(copo, copito), objeto.getAllChildren())
     }
 
     // Point 3.
     @Test
-    fun test_children_list_of_entity(){
-        assertEquals(listOf(copo), objeto.get_children())
+    fun testChildrenListOfEntity(){
+        assertEquals(listOf(copo), objeto.getChildren())
     }
 
     // Point 3.
     @Test
-    fun test_parent_of_entity(){
-        assertEquals(copo, copito.get_parent())
+    fun testParentOfEntity(){
+        assertEquals(copo, copito.getParent())
     }
 
     // Point 3.
     @Test
-    fun test_parent_and_children(){
-        assertEquals(listOf(objeto, copito), copo.get_parent_and_children())
+    fun testParentAndChildren(){
+        assertEquals(listOf(objeto, copito), copo.getParentAndChildren())
     }
 
     // Points 3 and 5.
     @Test
-    fun test_children_list_of_entity_vis(){
-        doc.add_entity_to_document(objeto)
-        doc.add_entity_to_document(copo)
-        doc.add_entity_to_document(copito)
-        assertEquals(listOf(copo), doc.get_children_vis(objeto))
+    fun testChildrenListOfEntityVis(){
+        doc.addEntity(objeto)
+        doc.addEntity(copo)
+        doc.addEntity(copito)
+        assertEquals(listOf(copo), doc.getChildrenVis(objeto))
     }
 
     // Points 3 and 5.
     @Test
-    fun test_parent_of_entity_vis(){
-        doc.add_entity_to_document(objeto)
-        doc.add_entity_to_document(copo)
-        doc.add_entity_to_document(copito)
-        assertEquals(copo, doc.get_parent_vis(copito))
+    fun testParentOfEntityVis(){
+        doc.addEntity(objeto)
+        doc.addEntity(copo)
+        doc.addEntity(copito)
+        assertEquals(copo, doc.getParentVis(copito))
     }
 
     // Points 3 and 5.
     @Test
-    fun test_parent_and_children_vis(){
-        doc.add_entity_to_document(objeto)
-        doc.add_entity_to_document(copo)
-        doc.add_entity_to_document(copito)
-        assertEquals(listOf(objeto, copito), doc.get_parent_and_children_vis(copo))
+    fun testParentAndChildrenVis(){
+        doc.addEntity(objeto)
+        doc.addEntity(copo)
+        doc.addEntity(copito)
+        assertEquals(listOf(objeto, copito), doc.getParentAndChildrenVis(copo))
     }
 
 
     // Document tests
     @Test
-    fun test_create_document(){
-        assertEquals("modelo", doc.get_child().get_name())
+    fun testCreateDocument(){
+        assertEquals("modelo", doc.getChild().getName())
     }
 
     // Point 1.
     @Test
-    fun test_add_entity_to_document(){
-        doc.add_entity_to_document(objeto)
-        doc.add_entity_to_document(copo)
-        doc.add_entity_to_document(copito)
-        assertEquals(listOf(objeto, copo, copito), doc.get_entities())
+    fun testAddEntityToDocument(){
+        doc.addEntity(objeto)
+        doc.addEntity(copo)
+        doc.addEntity(copito)
+        assertEquals(listOf(objeto, copo, copito), doc.getEntities())
     }
 
     // Point 1.
     @Test
-    fun test_remove_entity_to_document(){
-        doc.add_entity_to_document(objeto)
-        doc.add_entity_to_document(copo)
-        doc.add_entity_to_document(copito)
-        doc.remove_entity(copito)
-        assertEquals(listOf(objeto, copo), doc.get_entities())
+    fun testRemoveEntityToDocument(){
+        doc.addEntity(objeto)
+        doc.addEntity(copo)
+        doc.addEntity(copito)
+        doc.removeEntity(copito)
+        assertEquals(listOf(objeto, copo), doc.getEntities())
     }
 
     // Point 4.
     @Test
-    fun test_pretty_print(){
+    fun testPrettyPrint(){
 
         val expected_output = """
         <?xml version="1.0" encoding="UTF-8"?>
@@ -220,13 +220,13 @@ class Tests {
         </plano>
     """.trimIndent()
 
-        assertEquals(expected_output, doc_plano.pretty_print())
+        assertEquals(expected_output, doc_plano.prettyPrint())
 
     }
 
     // Point 4.
     @Test
-    fun test_pretty_print_to_file(){
+    fun testPrettyPrintToFile(){
 
         val expected_output = """
         <?xml version="1.0" encoding="UTF-8"?>
@@ -255,7 +255,7 @@ class Tests {
         val filePath = "output.xml"
         val testFile = File(filePath)
 
-        doc_plano.pretty_print_to_file(outputFile = testFile)
+        doc_plano.prettyPrintToFile(outputFile = testFile)
 
         assert(testFile.exists())
 
@@ -267,107 +267,107 @@ class Tests {
 
     // Point 6.
     @Test
-    fun test_add_global_attribute(){
-        doc.add_entity_to_document(garrafa)
-        doc.add_entity_to_document(garrafa2)
+    fun testAddGlobalAttribute(){
+        doc.addEntity(garrafa)
+        doc.addEntity(garrafa2)
 
-        doc.add_global_attribute("garrafa", "Material", "Cartao")
+        doc.addGlobalAttribute("garrafa", "Material", "Cartao")
         val expectedAttributes = mutableListOf(Attribute("Material", "Plastico"), Attribute("Material", "Cartao"))
-        assertEquals(expectedAttributes, garrafa.get_attributes())
+        assertEquals(expectedAttributes, garrafa.getAttributes())
     }
 
     // Points 6 and 5.
     @Test
-    fun test_add_global_attribute_vis(){
-        doc.add_entity_to_document(garrafa)
-        doc.add_entity_to_document(garrafa2)
+    fun testAddGlobalAttributeVis(){
+        doc.addEntity(garrafa)
+        doc.addEntity(garrafa2)
 
-        doc.add_global_attribute_vis("garrafa", "Material", "Cortiça")
+        doc.addGlobalAttributeVis("garrafa", "Material", "Cortiça")
         val expectedAttributes = mutableListOf(Attribute("Material", "Plastico"), Attribute("Material", "Cortiça"))
-        assertEquals(expectedAttributes, garrafa.get_attributes())
+        assertEquals(expectedAttributes, garrafa.getAttributes())
     }
 
     // Point 7.
     @Test
-    fun test_rename_global_entity(){
-        doc.add_entity_to_document(objeto)
-        doc.rename_global_entity("objeto", "objeta")
-        assertEquals("objeta", objeto.get_name())
+    fun testRenameGlobalEntity(){
+        doc.addEntity(objeto)
+        doc.renameGlobalEntity("objeto", "objeta")
+        assertEquals("objeta", objeto.getName())
     }
 
     // Points 7 and 5.
     @Test
-    fun test_rename_global_entity_vis(){
-        doc.add_entity_to_document(objeto)
-        doc.rename_global_entity_vis("objeto", "objetos")
-        assertEquals("objetos", objeto.get_name())
+    fun testRenameGlobalEntityVis(){
+        doc.addEntity(objeto)
+        doc.renameGlobalEntityVis("objeto", "objetos")
+        assertEquals("objetos", objeto.getName())
     }
 
     // Point 8.
     @Test
-    fun test_rename_global_attributes(){
-        doc.add_entity_to_document(garrafa)
-        doc.rename_global_attributes("garrafa", "Material", "Materia")
-        assertEquals("Materia", garrafa.get_attributes().get(0).get_attribute_name())
+    fun testRenameGlobalAttributes(){
+        doc.addEntity(garrafa)
+        doc.renameGlobalAttributes("garrafa", "Material", "Materia")
+        assertEquals("Materia", garrafa.getAttributes().get(0).getAttributeName())
     }
 
     // Points 8 and 5.
     @Test
-    fun test_rename_global_attributes_vis(){
-        doc.add_entity_to_document(garrafa)
-        doc.rename_global_attributes_vis("garrafa", "Material", "Materia")
-        assertEquals("Materia", garrafa.get_attributes().get(0).get_attribute_name())
+    fun testRenameGlobalAttributesVis(){
+        doc.addEntity(garrafa)
+        doc.renameGlobalAttributesVis("garrafa", "Material", "Materia")
+        assertEquals("Materia", garrafa.getAttributes().get(0).getAttributeName())
     }
 
     // Point 9.
     @Test
-    fun test_remove_global_entities(){
-        doc.add_entity_to_document(objeto)
-        doc.add_entity_to_document(copo)
-        doc.add_entity_to_document(copito)
-        doc.remove_global_entities("copito")
-        assertEquals(listOf(objeto, copo), doc.get_entities())
+    fun testRemoveGlobalEntities(){
+        doc.addEntity(objeto)
+        doc.addEntity(copo)
+        doc.addEntity(copito)
+        doc.removeGlobalEntities("copito")
+        assertEquals(listOf(objeto, copo), doc.getEntities())
     }
 
     // Points 9 and 5.
     @Test
-    fun test_remove_global_entities_vis(){
-        doc.add_entity_to_document(objeto)
-        doc.add_entity_to_document(copo)
-        doc.add_entity_to_document(copito)
-        doc.remove_global_entities_vis("copito")
-        assertEquals(listOf(objeto, copo), doc.get_entities())
+    fun testRemoveGlobalEntitiesVis(){
+        doc.addEntity(objeto)
+        doc.addEntity(copo)
+        doc.addEntity(copito)
+        doc.removeGlobalEntitiesVis("copito")
+        assertEquals(listOf(objeto, copo), doc.getEntities())
     }
 
     // Point 10.
     @Test
-    fun test_remove_global_attributes(){
+    fun testRemoveGlobalAttributes(){
         val escuro = Attribute("Cor", "Escuro")
-        garrafa.add_attribute(escuro)
-        garrafa2.add_attribute(escuro)
-        doc.add_entity_to_document(garrafa)
-        doc.add_entity_to_document(garrafa2)
-        doc.remove_global_attributes("garrafa", "Material")
-        assertEquals(listOf(escuro), garrafa.get_attributes())
-        assertEquals(listOf(escuro), garrafa2.get_attributes())
+        garrafa.addAttribute(escuro)
+        garrafa2.addAttribute(escuro)
+        doc.addEntity(garrafa)
+        doc.addEntity(garrafa2)
+        doc.removeGlobalAttributes("garrafa", "Material")
+        assertEquals(listOf(escuro), garrafa.getAttributes())
+        assertEquals(listOf(escuro), garrafa2.getAttributes())
     }
 
     // Points 10 and 5.
     @Test
-    fun test_remove_global_attributes_vis(){
+    fun testRemoveGlobalAttributesVis(){
         val escuro = Attribute("Cor", "Escuro")
-        garrafa.add_attribute(escuro)
-        garrafa2.add_attribute(escuro)
-        doc.add_entity_to_document(garrafa)
-        doc.add_entity_to_document(garrafa2)
-        doc.remove_global_attributes_vis("garrafa", "Material")
-        assertEquals(listOf(escuro), garrafa.get_attributes())
-        assertEquals(listOf(escuro), garrafa2.get_attributes())
+        garrafa.addAttribute(escuro)
+        garrafa2.addAttribute(escuro)
+        doc.addEntity(garrafa)
+        doc.addEntity(garrafa2)
+        doc.removeGlobalAttributesVis("garrafa", "Material")
+        assertEquals(listOf(escuro), garrafa.getAttributes())
+        assertEquals(listOf(escuro), garrafa2.getAttributes())
     }
 
     // Micro-XPath
     @Test
-    fun test_get_entity_xml_with_x_path(){
+    fun testGetEntityXmlWithXPath(){
         val expected1=   """
             <componente nome="Quizzes" peso="20%"/>
             <componente nome="Projeto" peso="80%"/>
@@ -377,63 +377,63 @@ class Tests {
 
         val expected2 = "<curso>Mestrado em Engenharia Informática</curso>"
 
-        assertEquals(expected1, doc_plano.get_entity_xml_with_x_path("fuc/avaliacao/componente"))
-        assertEquals(expected2, doc_plano.get_entity_xml_with_x_path("curso"))
+        assertEquals(expected1, doc_plano.getEntityXmlWithXPath("fuc/avaliacao/componente"))
+        assertEquals(expected2, doc_plano.getEntityXmlWithXPath("curso"))
     }
 
     @Test
-    fun test_get_entity_with_x_path(){
-        assertEquals(listOf(componente1, componente2, componente3, componente4, componente5), doc_plano.get_entity_with_x_path("fuc/avaliacao/componente"))
-        assertEquals(listOf(curso1), doc_plano.get_entity_with_x_path("curso"))
+    fun testGetEntityWithXPath(){
+        assertEquals(listOf(componente1, componente2, componente3, componente4, componente5), doc_plano.getEntityWithXPath("fuc/avaliacao/componente"))
+        assertEquals(listOf(curso1), doc_plano.getEntityWithXPath("curso"))
     }
 
 
     // Auxiliar tests
     @Test
-    fun test_get_attributes(){
-        assertEquals(mutableListOf(plastico), garrafa.get_attributes())
+    fun testGetAttributes(){
+        assertEquals(mutableListOf(plastico), garrafa.getAttributes())
     }
 
     @Test
-    fun test_get_entity_text(){
-        assertEquals("Automático", modelo.get_entity_text())
+    fun testGetEntityText(){
+        assertEquals("Automático", modelo.getEntityText())
     }
 
     @Test
-    fun test_change_entity_text(){
-        modelo.change_entity_text("Não automático")
-        assertEquals("Não automático", modelo.get_entity_text())
+    fun testChangeEntityText(){
+        modelo.changeEntityText("Não automático")
+        assertEquals("Não automático", modelo.getEntityText())
     }
 
     @Test
-    fun test_remove_entity_text(){
-        modelo.remove_entity_text()
-        assertEquals("", modelo.get_entity_text())
+    fun testRemoveEntityText(){
+        modelo.removeEntityText()
+        assertEquals("", modelo.getEntityText())
     }
 
     @Test
-    fun test_get_entity_xml(){
+    fun testGetEntityXml(){
         val expected1 = "<componente nome=\"Quizzes\" peso=\"20%\"/>"
         val expected2 = "<curso>Mestrado em Engenharia Informática</curso>"
 
-        assertEquals(expected1, doc_plano.get_entity_xml(componente1))
-        assertEquals(expected2, doc_plano.get_entity_xml(curso1))
+        assertEquals(expected1, doc_plano.getEntityXml(componente1))
+        assertEquals(expected2, doc_plano.getEntityXml(curso1))
     }
 
     // Tests relating Part 2 - Class Mapping
     @Test
-    fun test_component_class(){
+    fun testComponentClass(){
 
         val c = ComponenteAvaliacao("Quizzes", 20)
 
         val output = "<utf-8>\n" + "<comp nome=\"Quizzes\" peso=\"20%\"/>"
 
-        assertEquals(output, translate(c, encoding = "utf-8").pretty_print())
+        assertEquals(output, translate(c, encoding = "utf-8").prettyPrint())
     }
 
 
     @Test
-    fun test_fuc_class(){
+    fun testFucClass(){
 
         val f = FUC("M4310", "Programação Avançada", 6.0, "la la...",
             listOf(
@@ -452,17 +452,17 @@ class Tests {
                 "    <nome>Programação Avançada.</nome>\n" +
                 "</fuc>"
 
-        assertEquals(output, translate(f, encoding = "utf-8").pretty_print())
+        assertEquals(output, translate(f, encoding = "utf-8").prettyPrint())
     }
 
     // Relating Part 3 - Internal DSL
     @Test
-    fun test_dsl_get() {
+    fun testDslGet() {
         assertEquals(copito, copo.get("copito"))
     }
 
     @Test
-    fun test_dsl_build(){
+    fun testDslBuild(){
         val aux = entity("C") {
             attribute("Att", "1")
             attribute("Att", "2")

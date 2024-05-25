@@ -1,9 +1,9 @@
 operator fun Entity.get(n: String): Any? {
-    val child = this.get_children().find { it.get_name() == n }
+    val child = this.getChildren().find { it.getName() == n }
     if (child != null) {
         return child
     } else {
-        val attribute = this.get_attributes().find { it.get_attribute_name() == n }
+        val attribute = this.getAttributes().find { it.getAttributeName() == n }
         if (attribute != null) {
             return attribute
         }
@@ -16,7 +16,7 @@ fun entity(name: String, text: String = "", build: Entity.() -> Unit ): Entity =
         build(this)
     }
 
-fun Entity.attribute(name: String, value: String) = this.add_attribute(Attribute(name, value))
+fun Entity.attribute(name: String, value: String) = this.addAttribute(Attribute(name, value))
 
 // .() substitui o this na função, para chamar o parent
 fun Entity.entity(name: String, text: String="", build: Entity.() -> Unit ) =
@@ -26,14 +26,14 @@ fun Entity.entity(name: String, text: String="", build: Entity.() -> Unit ) =
 
 fun Entity.toTree(indent: String = ""): String {
     val builder = StringBuilder()
-    if (this.get_entity_text() != "") {
-        builder.append("$indent${this.get_name()} (Text = ${this.get_entity_text()})\n")
+    if (this.getEntityText() != "") {
+        builder.append("$indent${this.getName()} (Text = ${this.getEntityText()})\n")
     } else {
-        builder.append("$indent${this.get_name()}\n")
+        builder.append("$indent${this.getName()}\n")
     }
-    for (att in this.get_attributes())
+    for (att in this.getAttributes())
         builder.append("$indent$att\n")
-    for (child in this.get_children()) {
+    for (child in this.getChildren()) {
         builder.append(child.toTree("$indent  "))
     }
     return builder.toString()
