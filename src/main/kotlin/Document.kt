@@ -4,6 +4,7 @@
  */
 
 import java.io.File
+//Cucu
 
 /**
  * Class that represents a document with its child, the list of its entities and an encoding.
