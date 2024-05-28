@@ -23,11 +23,11 @@ class Document(
     }
 
     /**
-     * Accepts a visitor function to process this entity and its children.
+     * Accepts a visitor function to process the entity and its children.
      *
-     * Applies the provided [visitor] function to this entity and recursively to all of its children.
-     * The visitor function should return true to continue visiting other entities, or false to stop the process.
-     * @param visitor The visitor function to be applied to this entity and its children.
+     * Applies the provided [visitor] function to the entity and recursively to all of its children.
+     * The visitor function should return True to continue visiting other entities, or False to stop the process.
+     * @param visitor The visitor function to be applied to the entity and its children.
      */
     fun accept(visitor: (Entity) -> Boolean) {
         entities.forEach {
@@ -35,18 +35,41 @@ class Document(
         }
     }
 
+    /**
+     * Getter of the child (entity) of the document.
+     * @return Entity which belong to the document.
+     */
     fun getChild(): Entity {
         return child
     }
 
+    /**
+     * Getter of the list of entities of the document.
+     * @return List of entities that belong to the document.
+     */
     fun getEntities(): List<Entity> {
         return entities
     }
 
+    /**
+     * Verifies if the [entity] already has the [attribute].
+     * There can't be two equal attributes with the same name and value.
+     * [entity] The entity to verify if it has already the attribute given.
+     * [attribute] The object of comparison.
+     */
     internal fun attributeExists(entity: Entity, attribute: Attribute): Attribute? {
         return entity.getAttributes().find { it.getAttributeName() == attribute.getAttributeName() && it.getAttributeValue() == attribute.getAttributeValue() }
     }
 
+    /**
+     * Verifies if an entity exists in the document.
+     * There can only be one entity with its specific parameters in the document.
+     * [name] The name of the entity to check.
+     * [text] The text of the entity to check.
+     * [atributes] The list of attribute which belong to the entity.
+     * [parent] The entity's parent.
+     * [children] The list of entities, whose parent is the entity to check.
+     */
     internal fun entityExists(name: String, text: String, attributes: MutableList<Attribute>, parent: Entity?, children: List<Entity>): Entity? {
         return getEntities().find { it.getName() == name && it.getEntityText() == text && it.getAttributes() == attributes
                 && it.getParent() == parent && it.getChildren() == children}

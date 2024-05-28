@@ -59,14 +59,27 @@ class Entity(
         visitor(this)
     }
 
+    /**
+     * Getter of the name of the entity.
+     * @return The name of the entity.
+     */
     fun getName(): String {
         return name
     }
 
+    /**
+     * Changes the current name of the entity with the new one given.
+     * @param[name] The new name of the entity.
+     */
     fun setName(name: String){
         this.name=name
     }
 
+    /**
+     * Searches if the entity has already an attribute with the corresponding name and value as the ones given.
+     * @param[name] The name of the attribute to look for.
+     * @param[value] The value of the attribute to look for.
+     */
     private fun equalAttribute(name: String?, value: String?): Attribute? {
         return attributes.find { it.getAttributeName().equals(name) && it.getAttributeValue().equals(value) }
     }
@@ -186,7 +199,6 @@ class Entity(
     /**
      * Removes the text of the entity.
      * Clears the current text of the entity, sets it to an empty String ("").
-     *
      */
     fun removeEntityText(){
         text=""
