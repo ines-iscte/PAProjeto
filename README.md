@@ -2,6 +2,6 @@
 
 Autores:
 
-  Ana Mercês Soares dos Reis Moreira - nº99352
+  -> Ana Mercês Soares dos Reis Moreira - nº99352
   
-  Inês Colaço Ascenso - nº99286
+  -> Inês Colaço Ascenso - nº99286
