@@ -13,7 +13,7 @@ class Attribute(
     private var value: String?
 ){
     /**
-     * Initializes an instance of Attribute.
+     * Initializes an instance of Attribute.    
      *
      * If the name given has more than one word, the attribute is not created.
      * @param[name] The name given to the attribute.

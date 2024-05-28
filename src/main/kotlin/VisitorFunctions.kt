@@ -1,3 +1,7 @@
+/**
+ * @author Ana Mercês Soares dos Reis Moreira - nº99352
+ * @author Inês Colaço Ascenso - nº99286
+ */
 
 /**
  * NOTE: The following functions are another version of the exercises using visitors.

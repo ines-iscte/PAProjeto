@@ -118,32 +118,6 @@ class Entity(
      * @param[new_value] The value of the attribute to replace the current value. By default, it's null, if there is no change.
      */
     fun changeAttribute(attribute: Attribute, new_name: String? = null, new_value: String? = null) {
-//        attributes.forEach {
-//            if (it == attribute) {
-//                if (new_name != null) {
-//                    require(new_name.split(" ").size == 1) {
-//                        "New name must contain only one word"
-//                    }
-//                    val last_name = it.name
-//                    it.name = new_name
-//                    if (attributes.filter{ attribute.name == it.name && attribute.value == it.value}.size != 0){
-//                        print("This entity already has one equal attribute")
-//                        it.name = last_name
-//                    }
-//                }
-//                if (new_value != null) {
-//                    val last_value = it.value
-//                    it.value = new_value
-//                    if (attributes.filter{ attribute.name == it.name && attribute.value == it.value}.size != 0){
-//                        print("This entity already has one equal attribute")
-//                        it.value = last_value
-//                    }
-//                }
-//            }
-//        }
-
-
-
         attributes.forEach {
             if (it == attribute) {
 

@@ -1,3 +1,8 @@
+/**
+ * @author Ana Mercês Soares dos Reis Moreira - nº99352
+ * @author Inês Colaço Ascenso - nº99286
+ */
+
 import kotlin.reflect.*
 import kotlin.reflect.full.*
 

@@ -144,19 +144,6 @@ class Document(
      * @param[attribute_value] Value of the attribute to be added.
      */
     fun addGlobalAttribute(entity_name: String, attribute_name: String, attribute_value: String) {
-//        val attribute = Attribute(attribute_name, attribute_value)
-//
-//        this.entities.filter { it.name == entity_name }
-//            .forEach {
-//                if (it.attributes.filter{ attribute.name == attribute_name && attribute.value == attribute_value }.size == 0){
-//                    it.add_attribute(attribute)
-//                } else {
-//
-//                    print("The entity already has this attribute")
-//                }
-//
-//            }
-
         require(attribute_name.split(" ").size == 1) {
             "New name must contain only one word"
         }
@@ -384,7 +371,6 @@ class Document(
     }
 
     fun getEntityWithXPath(x_path: String): List<Entity> {
-        val returned_entities = auxGetEntityWithXPath(x_path, entities)
-        return returned_entities
+        return auxGetEntityWithXPath(x_path, entities)
     }
 }

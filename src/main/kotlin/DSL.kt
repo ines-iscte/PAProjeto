@@ -1,4 +1,9 @@
 /**
+ * @author Ana Mercês Soares dos Reis Moreira - nº99352
+ * @author Inês Colaço Ascenso - nº99286
+ */
+
+/**
  * Operator function that allows access to an entity's child an attribute of the entity by name.
  *
  * @param[n] The name of the child or the attribute, depending on if the first one is null or not.
