@@ -1,24 +1,48 @@
 import kotlin.reflect.*
 import kotlin.reflect.full.*
 
+/**
+ * Annotation that specifies a chosen name for the object, class or property.
+ * @param[objectName] The costume name to be assigned to the annotated element.
+ */
 @Target(AnnotationTarget.CLASS,AnnotationTarget.PROPERTY)
 annotation class ObjectName(val objectName: String)
 
+/**
+ * Annotation to exclude a class or property from a certain processing.
+ */
 @Target(AnnotationTarget.CLASS,AnnotationTarget.PROPERTY)
 annotation class Exclude
 
+/**
+ * Annotation to mark a class or property as an Entity.
+ */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
 annotation class IsEntity
 
+/**
+ * Annotation to mark a class or property as an Attribute.
+ */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY)
 annotation class IsAttribute
 
+/**
+ * Annotation to indicate that a property is a list.
+ */
 @Target(AnnotationTarget.PROPERTY)
 annotation class IsList
 
+/**
+ * Annotation to specify a transformer for XML string serialization; only applied to properties.
+ * @param[transformer] The KClass of the transformer to be used for the annotated property.
+ */
 @Target(AnnotationTarget.PROPERTY)
 annotation class XmlString(val transformer: KClass<out StringTransformer>)
 
+/**
+ * Annotation to specify an adapter for XML serialization; only applied to classes.
+ * @param[adapter] The class of the adapter to be used.
+ */
 @Target(AnnotationTarget.CLASS)
 annotation class XmlAdapter(val adapter: KClass<out EntityAdapter>)
 
@@ -64,37 +88,65 @@ data class FUC(
     val avaliacao: List<ComponenteAvaliacao>
 )
 
+/**
+ * Interface for transforming strings.
+ */
 interface StringTransformer {
     fun transform(value: Any): Any
 }
 
+/**
+ * Transformer to add a percentage sign(%) to a value.
+ */
 class AddPercentage : StringTransformer {
     override fun transform(value: Any): Any {
         return "$value%"
     }
 }
 
+/**
+ * Transformer to add a point(.) to a value.
+ */
 class AddPoint : StringTransformer {
     override fun transform(value: Any): Any {
         return "$value."
     }
 }
 
+/**
+ * Interface for adapting entities.
+ */
 interface EntityAdapter {
     fun adapt(entity: Entity)
 }
 
+/**
+ * Adapter to change the name of an entity.
+ */
 class ChangeNameAdapter : EntityAdapter {
     override fun adapt(entity: Entity) {
         entity.setName("comp")
     }
 }
 
+/**
+ * Adapter for the entity FUC.
+ */
 class FUCAdapter : EntityAdapter {
     override fun adapt(entity: Entity) {
         entity.addAttribute(Attribute("Modo", "Presencial"))
     }
 }
+
+/**
+ * Translates a given object to an XML document representation.
+ * Applies the annotations if the conditions are met.
+ *
+ * @param[obj] The object to be translated.
+ * @param[parentEntity] The entity's parent, if there is. By default, is null.
+ * @param[encoding] The encoding for the XML document. By default, is an empty string.
+ * @return The XML document representing the object.
+ */
 
 fun translate(obj: Any, parentEntity: Entity? = null, encoding: String = ""): Document {
     val clazz: KClass<*> = obj::class
@@ -144,6 +196,13 @@ fun translate(obj: Any, parentEntity: Entity? = null, encoding: String = ""): Do
     return Document(child = auxEntity, encoding = encoding)
 }
 
+/**
+ * Transforms a string using the specified transformer for the property.
+ *
+ * @param[property] The property whose value will be transformed.
+ * @param[value] The string value to be transformed.
+ * @return The transformed string.
+ */
 fun transformString(property: KProperty<*>, value: String): String {
     val adapterClass = property.findAnnotation<XmlString>()!!.transformer
     val adapterInstance = adapterClass.java.getDeclaredConstructor().newInstance()
@@ -152,6 +211,12 @@ fun transformString(property: KProperty<*>, value: String): String {
     return newValue.toString()
 }
 
+/**
+ * Transforms an entity using the specified adapter for the class.
+ *
+ * @param[entity] The entity to be transformed.
+ * @param[clazz] The class whose adapter will be used for the transformation.
+ */
 fun transformEntity(entity: Entity, clazz: KClass<*>) {
         val adapterClass = clazz.findAnnotation<XmlAdapter>()!!.adapter
         val adapterInstance = adapterClass.java.getDeclaredConstructor().newInstance()
