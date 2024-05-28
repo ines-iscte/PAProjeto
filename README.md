@@ -1,4 +1,4 @@
-**Biblioteca para geração e manipulação de XML em Kotlin**
+**Projeto com objetivo de desenvolver uma biblioteca em Kotlin que permita ao utilizador gerar e manipular ficheiros do tipo XML**
 
 Autores:
 
