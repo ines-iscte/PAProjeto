@@ -85,18 +85,48 @@ Desta forma, o utilizador tem a flexibilidade de:
 O ficheiro **_VisitorFunctions.kt_** tem as mesmas funcionalidades que a classe _Document_, mas aplicando o método _Visitor_. 
 Estas funções verificam todas as entidades pertencentes ao documento, desde a que é a raíz da estrutura do XML até à sua última entidade descendente.
 Assim o utilizador poderá procurar pela:
+
 - entidade-pai - se não tiver é a entidade-raíz do documento;
+
+**Exemplo:**
+
+`doc_plano.getParentVis(curso)`
+
 - entidades filhas da entidade; 
+
+**Exemplo:**
+
+`doc_plano.getChildrenVis(curso)`
+
 - pai e entidades filhas da entidade.
+
+**Exemplo:**
+
+`doc_plano.getParentAndChildrenVis(curso)`
 
 O utilizador poderá ainda percorrer as entidades do documento e procurar:
 - pelo atributo que pretende adicionar, alterar ou remover globalmente do documento e fazê-lo;
+
+**Exemplo:**
+
+`doc_plano.addGlobalAttributeVis(entity_name: curso, attribute_name: "Attribute", attribute_value: "Value")`
+
 - pela entidade que pretende adicionar, alterar ou remover globalmente do documento e fazê-lo.
+
+**Exemplo:**
+
+`doc_plano.renameGlobalEntityVis((old_name: "curso", new_name:"unidade"))`
 
 #### Mapeamento de Classes XML
 O ficheiro _**ClassMapping.kt**_ serve para traduzir o conteúdo das classes para objetos de modo a gerar automaticamente um ficheiro XML, recorrendo a 
 anotações, transformadores e adaptadores que facilitam na flexibilidade de operações para o utilizador.
 Deste modo, o utilizador poderá criar novas funções para manipulação de objetos e usá-las através das anotações _StringAdapter_ e _XmlAdapter_.
+
+**Exemplo:**
+
+`val c = ComponenteAvaliacao("Quizzes", 20)`
+`translate(c, encoding = "utf-8")`
+
 Estas funcionalidades permitem, como exemplos:
 - Adicionar um símbolo de percentagem (%) ao valor das componentes de uma entidade;
 - Adicionar um ponto final ao nome da entidade;
@@ -108,14 +138,41 @@ Estas funcionalidades permitem, como exemplos:
 O ficheiro _**DSL.kt**_ é um ficheiro que disponibiliza a instanciação de modelos XML através de uma DLS interna. 
 Assim, o utilizador tem uma visualização mais clara e limpa do conteúdo do ficheiro XML.
 Neste ficheiro, é possível:
-- Criar uma nova entidade; 
+- Criar uma nova entidade;
+
+**Exemplo:**
+
+`val curso = entity("curso") {}`
+
 - Adicionar um atributo a uma entidade;
+
+**Exemplo:**
+
+`val curso = entity("curso") { attribute("Att", "1") }`
+
 - Adicionar uma entidade filha a uma entidade;
+
+**Exemplo:**
+
+`val curso = entity("curso") { entity("semestre", text = "1") {} }`
+
 - Obter entidades filhas ou atributos associados a uma determinada entidade, através do seu nome;
+
+**Exemplo:**
+
+`curso.get("semestre") {}`
+
 - Criar entidades e seus constituintes através de uma estrutura em árvore;
+
+**Exemplo:**
+
+`val curso = entity("curso") {
+attribute("Att", "1")
+entity("semestre", text = "1") { }
+}`
+
 - Transformar a estrutura da entidade e seus constituites numa estrutura em árvore, facilitanto a sua leitura.
 
+**Exemplo:**
 
-
-
-
+`curso.toTree()`

@@ -4,7 +4,6 @@
  */
 
 import java.io.File
-//Cucu
 
 /**
  * Class that represents a document with its child, the list of its entities and an encoding.
@@ -67,7 +66,7 @@ class Document(
      * There can only be one entity with its specific parameters in the document.
      * [name] The name of the entity to check.
      * [text] The text of the entity to check.
-     * [atributes] The list of attribute which belong to the entity.
+     * [attributes] The list of attribute which belong to the entity.
      * [parent] The entity's parent.
      * [children] The list of entities, whose parent is the entity to check.
      */
